@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver'
-import { Document, Packer, PageOrientation, Table, TableRow, TableCell, HeightRule, Paragraph, TextRun, AlignmentType, WidthType, ImageRun, BorderStyle, Tab, HorizontalPositionRelativeFrom, HorizontalPositionAlign, VerticalPositionRelativeFrom, VerticalPositionAlign, TextWrappingType, TabStopType, Footer, PageNumber, TableLayout } from 'docx'
+import { Document, Packer, PageOrientation, Table, TableRow, TableCell, HeightRule, Paragraph, TextRun, AlignmentType, WidthType, ImageRun, BorderStyle, HorizontalPositionRelativeFrom, HorizontalPositionAlign, VerticalPositionRelativeFrom, VerticalPositionAlign, Footer, PageNumber } from 'docx'
 // import formLogo from '@/assets/images/form-logo.png'
 import axios from 'axios'
 import { useEffect, useState } from 'react'

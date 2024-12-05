@@ -2,7 +2,7 @@
 
 import axios from "axios"
 import { useSession } from "next-auth/react"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 interface PatientLog {
     consultation_type: string;

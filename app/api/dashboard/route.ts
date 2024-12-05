@@ -48,7 +48,7 @@ export const GET = async (request: Request) => {
         }
         const posts = await Post.find({ deletedAt: null }).sort({ createdAt: -1 });
         const patient = await Patient.find({ deletedAt: null });
-        return new NextResponse(JSON.stringify({message: 'OK', posts: posts, logs: logs, appointment: apps, patient: patient, records: records}), {status: 200});
+        return new NextResponse(JSON.stringify({message: 'OK', posts: posts, logs: logs, appointment: apps, patient: patient, records: records, meds: meds}), {status: 200});
     } catch (error: unknown) {
         let message = '';
         if (error instanceof Error) {
