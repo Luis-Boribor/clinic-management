@@ -6,6 +6,7 @@ import { FaPaperPlane } from "react-icons/fa"
 import { FormEvent, useCallback, useEffect, useState } from "react"
 import axios from "axios"
 import DataTable from "@/app/components/DataTable"
+import Link from "next/link"
 
 interface Patient {
     _id: string;
@@ -123,8 +124,8 @@ export default function Dashboard() {
             const p = response.data?.patient
             const app = response.data?.appointment
             const posts = response.data?.posts
-            const meds: Records[] = response.data?.meds
-            const result = meds.filter(row => row.year === new Date().getFullYear())
+            const meds: Records[] = response.data?.records
+            const result = meds.filter(row => row.year === new Date().getFullYear() - 1)
             setRecords(result)
             setRecordsArr(meds)
             setPatients({
@@ -159,8 +160,9 @@ export default function Dashboard() {
         })
     }
 
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+    // const currentYear = new Date().getFullYear();
+    // const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+    const years = Array.from(new Set(recordsArr.map(record => record.year)));
 
     return (
         <div className="w-full p-5 md:px-20">
@@ -196,22 +198,26 @@ export default function Dashboard() {
             <section>
             </section>
             <section className="w-full bg-zinc-200 p-5 mb-10 overflow-auto h-96">
-                <header className="w-full flex justify-center items-center mb-5">
-                    <select 
-                        className="text-xs p-1 rounded"
-                        onChange={e=>{
-                            const cy = Number(e.target.value)
-                            const result = recordsArr.filter(row => row.year === cy)
-                            setRecords(result)
-                            // setSelectedYear(cy)
-                        }}
-                    >
-                        {
-                            years.map(year => (
-                                <option key={year} value={year}>{year}</option>
-                            ))
-                        }
-                    </select>
+                <header className="w-full flex justify-between items-center gap-2 mb-5">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">Year:</span>
+                        <select 
+                            className="text-xs p-1 rounded"
+                            onChange={e=>{
+                                const cy = Number(e.target.value)
+                                const result = recordsArr.filter(row => row.year === cy)
+                                setRecords(result)
+                                // setSelectedYear(cy)
+                            }}
+                        >
+                            {
+                                years.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    <Link href={'/admin/old-records/create'} className="p-1 rounded text-xs text-white font-semibold bg-teal-400 hover:bg-teal-600">Add old records</Link>
                 </header>
                 <DataTable data={records} />
             </section>

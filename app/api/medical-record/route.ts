@@ -1,6 +1,7 @@
 import connect from "@/lib/connect";
 import MedicalRecord from "@/app/models/MedicalRecord";
 import { NextResponse } from "next/server";
+import { Types } from "mongoose";
 
 export const GET = async () => {
     try {
@@ -48,6 +49,20 @@ export const GET = async () => {
             {
                 $unwind: {
                     path: '$medical_examination',
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: 'dentalconsultations',
+                    localField: 'dental_consultation',
+                    foreignField: '_id',
+                    as: 'dental_consultation',
+                }
+            },
+            {
+                $unwind: {
+                    path: '$dental_consultation',
                     preserveNullAndEmptyArrays: true,
                 }
             },
@@ -167,6 +182,14 @@ export const GET = async () => {
                         remarks: '$medical_examination.remarks',
                         createdAt: '$medical_examination.createdAt',
                     },
+                    dental_consultation: {
+                        _id: '$dental_consultation._id',
+                        teeth: '$dental_consultation.teeth',
+                        teeth_work: '$dental_consultation.teeth_work',
+                        case_history: '$dental_consultation.case_history',
+                        chief_complaint: '$dental_consultation.chief_complaint',
+                        createdAt: '$dental_consultation.createdAt',
+                    },
                     consultation_type: 1,
                     findings: 1,
                     createdAt: 1,
@@ -197,10 +220,43 @@ export const GET = async () => {
             //         as: 'dental_consultation.patient'
             //     }
             // },
-        ]);
+        ]).sort({ createdAt: -1 });
         //.populate('consultation').populate('medical_examination').populate('dental_consultation')
         // const medex = await MedicalRecord.find({ deletedAt: null }).populate('patient').populate('consultation').populate('medical_examination').populate('dental_consultation');
         return new NextResponse(JSON.stringify({message: 'OK', medex: medex}), {status: 200});
+    } catch (error: unknown) {
+        let message = '';
+        if (error instanceof Error) {
+            message = error.message;
+        }
+        return new NextResponse('Error: ' + message, {status: 500});
+    }
+}
+
+export const PATCH = async (request: Request) => {
+    try {
+        const { searchParams } = new URL(request.url);
+        const recordId = searchParams.get('record_id');
+
+        if (!recordId) {
+            return new NextResponse(JSON.stringify({message: 'Missing record id'}), {status: 400});
+        }
+
+        if (!Types.ObjectId.isValid(recordId)) {
+            return new NextResponse(JSON.stringify({message: 'Invalid record id'}), {status: 400});
+        }
+
+        await connect();
+        const result = await MedicalRecord.findOneAndUpdate(
+            { _id: recordId },
+            { deletedAt: new Date() },
+            { new: true }
+        );
+
+        if (!result) {
+            return new NextResponse(JSON.stringify({message: 'Failed to archive record'}), {status: 400});
+        }
+        return new NextResponse(JSON.stringify({message: 'OK'}), {status: 200});
     } catch (error: unknown) {
         let message = '';
         if (error instanceof Error) {

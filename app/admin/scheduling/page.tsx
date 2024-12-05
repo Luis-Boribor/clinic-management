@@ -12,6 +12,7 @@ interface Patient {
     email: string | null;
     position: string | null;
     contact: string | null;
+    id_number: string | null;
 }
 
 interface Appointment {
@@ -30,6 +31,7 @@ export default function Scheduling() {
         appointments: [],
         loading: true
     })
+    const [appArr, setAppArr] = useState<Appointment[]>([])
 
     const getAppointments = useCallback(async () => {
         await axios.get('/api/schedule')
@@ -40,6 +42,7 @@ export default function Scheduling() {
                 appointments: app,
                 loading: false
             })
+            setAppArr(app)
         })
         .catch(error => {
             console.log(error)
@@ -54,11 +57,29 @@ export default function Scheduling() {
         getAppointments()
     }, [getAppointments])
 
+    const handleSearch = (key: string) => {
+        const temp = appArr.filter(app => 
+            app.patient?.first_name?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.middle_name?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.last_name?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.extension?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.position?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.email?.toLowerCase().includes(key.toLowerCase()) ||
+            app.patient?.id_number?.toLowerCase().includes(key.toLowerCase()) ||
+            app.consultation_type?.toLowerCase().includes(key.toLowerCase()) 
+        )
+        setAppointments({
+            ...appointments,
+            appointments: temp
+        })
+    }
+
     return (
         <div className="w-full flex justify-center items-center">
             <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Appointments</h1>
+                    <input type="text" onChange={e=>handleSearch(e.target.value)} className="p-2 text-sm w-1/3 rounded" placeholder="Search" />
                     <Link href={'/admin/scheduling/create'} className="block p-2 text-white text-sm font-bold bg-blue-600 hover:bg-blue-900 rounded">Create</Link>
                 </header>
                 <div className="relative w-full h-96 overflow-y-auto">

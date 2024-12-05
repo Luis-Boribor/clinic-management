@@ -61,13 +61,13 @@ export default function HealthRecord() {
                                         <tr key={index}>
                                             <td className="p-2 border-b border-gray-200">
                                                 <p>
-                                                    <span>{lg.patient.first_name} </span>
-                                                    <span>{lg.patient.middle_name} </span>
-                                                    <span>{lg.patient.last_name} </span>
-                                                    <span>{lg.patient.extension} </span>
+                                                    <span>{lg.patient?.first_name} </span>
+                                                    <span>{lg.patient?.middle_name} </span>
+                                                    <span>{lg.patient?.last_name} </span>
+                                                    <span>{lg.patient?.extension} </span>
                                                 </p>
                                             </td>
-                                            <td className="p-2 border-b border-gray-200">{lg.patient.position}</td>
+                                            <td className="p-2 border-b border-gray-200">{lg.patient?.position}</td>
                                             <td className="p-2 border-b border-gray-200">
                                                 {
                                                     lg.findings.map((find, idx) => {

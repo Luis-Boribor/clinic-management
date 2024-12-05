@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver'
-import { Document, Packer, PageOrientation, Table, TableRow, TableCell, HeightRule, Paragraph, TextRun, AlignmentType, WidthType, ImageRun, BorderStyle } from 'docx'
+import { Document, Packer, PageOrientation, Table, TableRow, TableCell, HeightRule, Paragraph, TextRun, AlignmentType, WidthType, ImageRun, BorderStyle, Tab, HorizontalPositionRelativeFrom, HorizontalPositionAlign, VerticalPositionRelativeFrom, VerticalPositionAlign, TextWrappingType, TabStopType, Footer, PageNumber, TableLayout } from 'docx'
 // import formLogo from '@/assets/images/form-logo.png'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
@@ -120,9 +120,21 @@ interface MedicalState {
     createdAt: Date;
 }
 
+interface DentalState {
+    patient: Patient;
+    teeth?: number[];
+    teeth_work?: string[];
+    case_history?: string;
+    chief_complaint?: string;
+    createdAt: Date;
+}
+
 export default function Exports() {
     const [formLogo, setFormLogo] = useState<Buffer | null>(null)
     const [phLogo, setPHLogo] = useState<Buffer | null>(null)
+    const [dentalImage, setDentalImage] = useState<Buffer | null>(null)
+
+    const certificationString = "I hereby authorize SORSOGON STATE UNIVERSITY and its officially designated medical examiner and examining physicians/s to furnish information that the institution may need pertaining to my health status and other pertinent medical findings and do hereby release them from any and all legal responsibilities by doing so. I also further certify that the medical history contained herein is true to the best of my knowledge and any false statement will disqualify me from any benifits and claims."
 
     const exportConsultation = (consultation: ConsultationState, patient: Patient) => {
         
@@ -592,7 +604,6 @@ export default function Exports() {
                 children: [
                     new TableCell({
                         columnSpan: 8,
-                        rowSpan: 1,
                         children: [
                             new Paragraph('PAST MEDICAL HISTORY')
                         ]
@@ -600,10 +611,13 @@ export default function Exports() {
                 ]
             }),
             new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
                 children: [
                     new TableCell({
                         columnSpan: 8,
-                        rowSpan: 2,
                         children: [
                             new Paragraph(medex.past_medical_history)
                         ]
@@ -616,28 +630,19 @@ export default function Exports() {
                         columnSpan: 8,
                         rowSpan: 1,
                         children: [
-                            new Paragraph('')
-                        ]
-                    })
-                ]
-            }),
-
-            new TableRow({
-                children: [
-                    new TableCell({
-                        columnSpan: 8,
-                        rowSpan: 1,
-                        children: [
                             new Paragraph('FAMILY HISTORY')
                         ]
                     })
                 ]
             }),
             new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
                 children: [
                     new TableCell({
                         columnSpan: 8,
-                        rowSpan: 2,
                         children: [
                             new Paragraph(medex.family_history)
                         ]
@@ -648,56 +653,461 @@ export default function Exports() {
                 children: [
                     new TableCell({
                         columnSpan: 8,
-                        rowSpan: 1,
                         children: [
-                            new Paragraph('')
+                            new Paragraph('OCCUPATIONAL HISTORY')
                         ]
                     })
                 ]
             }),
-            // new TableRow({
-            //     children: [
-            //         new TableCell({
-            //             columnSpan: 8,
-            //             rowSpan: 1,
-            //             children: [
-            //                 new Paragraph('OCCUPATIONAL HISTORY')
-            //             ]
-            //         })
-            //     ]
-            // }),
-            // new TableRow({
-            //     children: [
-            //         new TableCell({
-            //             columnSpan: 8,
-            //             rowSpan: 2,
-            //             children: [
-            //                 new Paragraph(medex.occupational_history)
-            //             ]
-            //         })
-            //     ]
-            // }),
+            new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph(medex.occupational_history)
+                        ]
+                    })
+                ]
+            }),
             new TableRow({
                 children: [
                     new TableCell({
-                        columnSpan: 3,
-                        rowSpan: 3,
-                        verticalAlign: 'bottom',
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('PHYSICAL EXAMINATION')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph('NORMAL')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph('FINDINGS')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 4,
+                        children: [
+                            new Paragraph('DIAGNOSTIC EXAMINATION')
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('General Appearance/Body Mass Index (BMI)')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
                         children: [
                             new Paragraph('')
                         ]
                     }),
                     new TableCell({
-                        columnSpan: 5,
-                        rowSpan: 1,
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph('')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 3,
                         children: [
                             new Paragraph({
                                 children: [
+                                    new TextRun('BP: '),
+                                    new TextRun(medex.blood_pressure)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Temp: '),
+                                    new TextRun(medex.temperature)
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Skin')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.skin ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.skin ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 3,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('HR: '),
+                                    new TextRun(medex.hr)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('RR: '),
+                                    new TextRun(medex.rr)
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Head')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.heads ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.heads ?? '')
+                        ]
+                    }),
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Eyes')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.eyes ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.eyes ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 3,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Height: '),
+                                    new TextRun(medex.height)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Weight: '),
+                                    new TextRun(medex.weight)
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Ears')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.ears ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.ears ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 2,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('HEARING: '),
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    medex.hearing === 'normal' ?
+                                    new TextRun("☑ Normal")
+                                    :
+                                    new TextRun("☐ Normal"),
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    medex.hearing !== 'normal' && medex.hearing !== null ?
+                                    new TextRun("☑ Hearing Impaired")
+                                    :
+                                    new TextRun("☐ Hearing Impaired"),
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Mouth')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.mouth ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.mouth ?? '')
+                        ]
+                    }),
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Neck')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.neck ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.neck ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 2,
+                        rowSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('VISION: '),
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    medex.vision === 'with glasses' ?
+                                    new TextRun("☑ With Glasses")
+                                    :
+                                    new TextRun("☐ With Glasses"),
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('R:'),
                                     new TextRun({
-                                        text: "TO BE SIGNED BY STUDENT'S PARENT/GUARDIAN ONLY",
-                                        font: 'Arial',
-                                        size: 20,
-                                        bold: true,
+                                        underline: { type: 'single' },
+                                        text: medex.vision_r
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Chest')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.chest ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.chest ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    medex.vision === 'without glasses' ?
+                                    new TextRun("☑ Without Glasses")
+                                    :
+                                    new TextRun("☐ Without Glasses"),
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('L:'),
+                                    new TextRun({
+                                        underline: { type: 'single' },
+                                        text: medex.vision_l
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Abdomen')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.abdomen ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.abdomen ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        verticalAlign: 'center',
+                        columnSpan: 4,
+                        rowSpan: 4,
+                        children: [
+                            new Paragraph({
+                                alignment: AlignmentType.CENTER,
+                                children: [
+                                    new TextRun('CHEST X-RAY'),
+                                    new TextRun('\t'),
+                                    medex.xray_type == 'pa view' ?
+                                    new TextRun("☑ PA View")
+                                    :
+                                    new TextRun("☐ PA View"),
+                                    new TextRun('\t'),
+                                    medex.xray_type == 'lordotic view' ?
+                                    new TextRun("☑ Lordotic View")
+                                    :
+                                    new TextRun("☐ Lordotic View"),
+                                ]
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t'),
+                                    !medex.chest_xray ?
+                                    new TextRun("☑ Normal")
+                                    :
+                                    new TextRun("☐ Normal"),
+                                    medex.chest_xray ? 
+                                    new TextRun("☑ Findings:")
+                                    :
+                                    new TextRun("☐ Findings:"),
+                                    new TextRun({
+                                        underline: { type: 'single' },
+                                        text: medex.chest_xray
                                     })
                                 ]
                             })
@@ -708,21 +1118,21 @@ export default function Exports() {
             new TableRow({
                 children: [
                     new TableCell({
-                        columnSpan: 5,
-                        rowSpan: 2,
+                        columnSpan: 2,
                         children: [
-                            new Paragraph('')
+                            new Paragraph('Rectal')
                         ]
                     }),
-                ]
-            }),
-            new TableRow({
-                children: [
                     new TableCell({
-                        columnSpan: 5,
-                        rowSpan: 2,
+                        columnSpan: 1,
                         children: [
-                            new Paragraph('')
+                            new Paragraph(medex.rectal ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.rectal ?? '')
                         ]
                     })
                 ]
@@ -730,31 +1140,239 @@ export default function Exports() {
             new TableRow({
                 children: [
                     new TableCell({
-                        columnSpan: 3,
-                        rowSpan: 1,
+                        columnSpan: 2,
                         children: [
-                            new Paragraph({
-                                alignment: AlignmentType.CENTER,
-                                children: [
-                                    new TextRun("Student/Employee's Signation")
-                                ]
-                            })
+                            new Paragraph('Musculo-Skeletal')
                         ]
                     }),
                     new TableCell({
-                        columnSpan: 5,
-                        rowSpan: 1,
+                        columnSpan: 1,
                         children: [
+                            new Paragraph(medex.musculo_skeletal ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.musculo_skeletal ?? '')
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Extremities')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.extremeties ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.extremeties ?? '')
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 3600,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph('Other:')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.other ? '' : '/')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 1,
+                        children: [
+                            new Paragraph(medex.other ?? '')
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 4,
+                        children: [
+                            new Paragraph('COMPLETE BLOOD COUNT'),
                             new Paragraph({
-                                alignment: AlignmentType.CENTER,
                                 children: [
-                                    new TextRun("Parent/Guardian's Printed Name & Signature")
+                                    new TextRun('\t\t'),
+                                    medex.complete_blood_count ?
+                                    new TextRun('☐ Normal')
+                                    :
+                                    new TextRun('☑ Normal'),
+                                    new TextRun('\t'),
+                                    medex.complete_blood_count ?
+                                    new TextRun('☑ Findings:')
+                                    :
+                                    new TextRun('☐ Findings:'),
+                                    new TextRun(medex.complete_blood_count)
                                 ]
-                            })
+                            }),
+                            new Paragraph('ROUTINE URINALYSIS'),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t'),
+                                    medex.routine_urinalysis ?
+                                    new TextRun('☐ Normal')
+                                    :
+                                    new TextRun('☑ Normal'),
+                                    new TextRun('\t'),
+                                    medex.routine_urinalysis ?
+                                    new TextRun('☑ Findings:')
+                                    :
+                                    new TextRun('☐ Findings:'),
+                                    new TextRun(medex.routine_urinalysis)
+                                ]
+                            }),
+                            new Paragraph('FECALYSIS/STOOL EXAMINATION'),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t'),
+                                    medex.fecalysis ?
+                                    new TextRun('☐ Normal')
+                                    :
+                                    new TextRun('☑ Normal'),
+                                    new TextRun('\t'),
+                                    medex.fecalysis ?
+                                    new TextRun('☑ Findings:')
+                                    :
+                                    new TextRun('☐ Findings:'),
+                                    new TextRun(medex.fecalysis)
+                                ]
+                            }),
+                            new Paragraph('HEPATITIS B SCREENING'),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t'),
+                                    medex.fecalysis ?
+                                    new TextRun('☐ Normal')
+                                    :
+                                    new TextRun('☑ Normal'),
+                                    new TextRun('\t'),
+                                    medex.fecalysis ?
+                                    new TextRun('☑ Findings:')
+                                    :
+                                    new TextRun('☐ Findings:'),
+                                    new TextRun(medex.fecalysis)
+                                ]
+                            }),
+                            new Paragraph('DRUG TEST'),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t'),
+                                    new TextRun('Methamphetamine')
+                                ]
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t'),
+                                    medex.metaphetamine ?
+                                    new TextRun('☐ Negative')
+                                    :
+                                    new TextRun('☑ Negative'),
+                                    new TextRun('\t'),
+                                    medex.metaphetamine ?
+                                    new TextRun('☑ Positive')
+                                    :
+                                    new TextRun('☐ Positive'),
+                                ]
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t'),
+                                    new TextRun('Tetrahydrocannabinol')
+                                ]
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t'),
+                                    medex.tetrahydrocannabinol ?
+                                    new TextRun('☐ Negative')
+                                    :
+                                    new TextRun('☑ Negative'),
+                                    new TextRun('\t'),
+                                    medex.tetrahydrocannabinol ?
+                                    new TextRun('☑ Positive')
+                                    :
+                                    new TextRun('☐ Positive'),
+                                ]
+                            }),
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 1440,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph(certificationString)
                         ]
                     })
                 ]
             })
+            // new TableRow({
+            //     children: [
+            //         new TableCell({
+            //             columnSpan: 3,
+            //             rowSpan: 3,
+            //             verticalAlign: 'bottom',
+            //             children: [
+            //                 new Paragraph('')
+            //             ]
+            //         }),
+            //         new TableCell({
+            //             columnSpan: 5,
+            //             rowSpan: 1,
+            //             children: [
+            //                 new Paragraph({
+            //                     children: [
+            //                         new TextRun({
+            //                             text: "TO BE SIGNED BY STUDENT'S PARENT/GUARDIAN ONLY",
+            //                             font: 'Arial',
+            //                             size: 20,
+            //                             bold: true,
+            //                         })
+            //                     ]
+            //                 })
+            //             ]
+            //         }),
+            //     ]
+            // }),
+            // new TableRow({
+            //     height: {
+            //         value: 2880,
+            //         rule: HeightRule.EXACT,
+            //     },
+            //     children: [
+            //         new TableCell({
+            //             columnSpan: 8,
+            //             children: [
+            //                 new Paragraph("I hereby authorize SORSOGON STATE UNIVERSITY and its officially designated ")
+            //             ]
+            //         })
+            //     ]
+            // })
         ]
         const rows = [...header, ...body]
         const doc = new Document({
@@ -784,13 +1402,582 @@ export default function Exports() {
             }]
         })
         Packer.toBlob(doc).then(blob => {
-            saveAs(blob, 'medical-examination-form.docx')
+            saveAs(blob, patient.first_name+' '+patient.middle_name+' '+patient.last_name+' '+patient.extension+'-medical-examination-form.docx')
+        })
+    }
+
+    const exportDentalConsultation = (dental: DentalState, patient: Patient) => {
+        const shorthandMapping: { [key: string]: string } = {
+            C: "Dental Caries",
+            Co: "Composite Filling",
+            Rf: "Roof Fragment",
+            Un: "Un-erupted",
+            X: "Tooth Extraction",
+            P: "Pontic",
+            Am: "Amalgam Filling",
+          };
+          
+          const uniqueDescriptions = Array.from(new Set(dental.teeth_work?.map(item => shorthandMapping[item])));
+        const header = addHeader() ?? []
+        const body = [
+            new TableRow({
+                height: {
+                    value: 346,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        width: {
+                            size: 10785,
+                            type: WidthType.DXA,
+                        },
+                        verticalAlign: AlignmentType.CENTER,
+                        children: [
+                            new Paragraph({
+                                alignment: AlignmentType.CENTER,
+                                spacing: {
+                                    before: 10,
+                                    after: 10,
+                                },
+                                children: [
+                                    new TextRun({
+                                        text: 'DENTAL CONSULTATION FORM',
+                                        font: 'Arial',
+                                        size: 22,
+                                        bold: true,
+                                    }),
+                                ]
+                            })
+                        ]
+                    }),
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 3,
+                        width: {
+                            size: 3672,
+                            type: WidthType.DXA,
+                        },
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Name: '),
+                                    new TextRun(patient.first_name+' '+patient.middle_name+' '+patient.last_name+' '+patient.extension)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 2,
+                        width: {
+                            size: 2160,
+                            type: WidthType.DXA,
+                        },
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Age: '),
+                                    new TextRun((new Date().getFullYear() - new Date(patient.birthdate).getFullYear()).toString())
+                                ]
+                            }),
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 3,
+                        width: {
+                            size: 4824,
+                            type: WidthType.DXA,
+                        },
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Course & Year/Designation: '),
+                                    new TextRun(patient.course+' '+patient.year)
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 3,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Address: '),
+                                    new TextRun(patient.address)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 2,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Sex: '),
+                                    new TextRun(patient.sex)
+                                ]
+                            })
+                        ]
+                    }),
+                    new TableCell({
+                        columnSpan: 3,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Contact Number: '),
+                                    new TextRun(patient.contact)
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 8640,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph({
+                                alignment: AlignmentType.CENTER,
+                                children: [
+                                    new ImageRun({
+                                        data: dentalImage,
+                                        transformation: {
+                                            width: 500,
+                                            height: 500,
+                                        },
+                                        type: 'jpg',
+                                        floating: {
+                                            horizontalPosition: {
+                                              relative: HorizontalPositionRelativeFrom.PAGE,
+                                              align: HorizontalPositionAlign.CENTER,
+                                            },
+                                            verticalPosition: {
+                                              relative: VerticalPositionRelativeFrom.PAGE,
+                                              align: VerticalPositionAlign.CENTER,
+                                            },
+                                        },
+                                    })
+                                ]
+                            }),
+                            // new Paragraph({
+                            //     alignment: AlignmentType.CENTER,
+                            //     spacing: {
+                            //         before: 200,
+                            //         after: 200, 
+                            //         line: 360, 
+                            //         lineRule: "auto", 
+                            //     },
+                            //     children: [
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //         new TextRun('asd'),
+                            //     ]
+                            // }),
+                            // new Paragraph({
+                            //     text: 'testing paragraph',
+                                
+                            // })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph('Legend: '),
+                            new Paragraph({
+                                children: [
+                                    new TextRun("C - Dental Caries"),
+                                    new TextRun("\t"), 
+                                    new TextRun("Cp - Composite Filling"),
+                                    new TextRun("\t"), 
+                                    new TextRun("Rf - Roof Fragment"),
+                                    new TextRun("\t\t"),
+                                    new TextRun("Un - Un-erupted")
+                                ],
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('X - Tooth for Extraction'),
+                                    new TextRun('\t'),
+                                    new TextRun('P - Pontic'),
+                                    new TextRun('\t\t'),
+                                    new TextRun('Am - Amalgam Filling')
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        bold: true,
+                                        text: 'Case History:'
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph(dental?.case_history??'')
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        bold: true,
+                                        text: 'Chief Complaint:'
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph(dental?.chief_complaint??'')
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        bold: true,
+                                        text: 'Examined by:'
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 8,
+                        children: [
+                            new Paragraph(''),
+                            new Paragraph(''),
+                            new Paragraph(''),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('\t\t\t\t'),
+                                    new TextRun({
+                                        underline: { type: 'single' },
+                                        text: new Date(dental.createdAt).toLocaleDateString('en-PH')
+                                    })
+                                ]
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun('Dental Officer III'),
+                                    new TextRun('\t\t\t'),
+                                    new TextRun('Date')
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            })
+        ]
+        const rows = [...header, ...body]
+        const doc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        size: {
+                            orientation: PageOrientation.PORTRAIT,  
+                            width: 12240,  
+                            height: 20160, 
+                        },
+                        margin: {
+                            top: 567,    
+                            right: 567,  
+                            bottom: 567, 
+                            left: 567,   
+                        },
+                    },
+                },
+                footers: {
+                    default: new Footer({
+                        children: [
+                            new Table({
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Doc. Code')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('FM-BUC-HSU-004')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Effectivity:')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('October 25, 2023')
+                                                ]
+                                            })
+                                        ]
+                                    }),
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Revision No.')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph({
+                                                        text: '02',
+                                                        alignment: AlignmentType.CENTER
+                                                    })
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Page No.')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph({
+                                                        children: [
+                                                            new TextRun({
+                                                                children: [PageNumber.CURRENT, ' of 2']
+                                                            })
+                                                        ]
+                                                    })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ],
+                            })
+                        ]
+                    })
+                },
+                children: [
+                    new Table({
+                        alignment: AlignmentType.CENTER,
+                        width: { size: "100%", type: "auto" },
+                        rows: rows ?? [new TableRow({children:[]})],
+                    })
+                ]
+            }, {
+                properties: {
+                    page: {
+                        size: {
+                            orientation: PageOrientation.PORTRAIT,  
+                            width: 12240,  
+                            height: 20160, 
+                        },
+                        margin: {
+                            top: 567,    
+                            right: 567,  
+                            bottom: 567, 
+                            left: 567,   
+                        },
+                    },
+                },
+                footers: {
+                    default: new Footer({
+                        children: [
+                            new Table({
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Doc. Code')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('FM-BUC-HSU-004')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Effectivity:')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('October 25, 2023')
+                                                ]
+                                            })
+                                        ]
+                                    }),
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Revision No.')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph({
+                                                        text: '02',
+                                                        alignment: AlignmentType.CENTER
+                                                    })
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph('Page No.')
+                                                ]
+                                            }),
+                                            new TableCell({
+                                                children: [
+                                                    new Paragraph({
+                                                        children: [
+                                                            new TextRun({
+                                                                children: [PageNumber.CURRENT, ' of 2']
+                                                            })
+                                                        ]
+                                                    })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ],
+                            })
+                        ]
+                    }),
+                },
+                children: [
+                    new Table({
+                        alignment: AlignmentType.CENTER,
+                        width: { size: "100%", type: "auto" },
+                        rows: [
+                            new TableRow({
+                                height: {
+                                    value: 16474,
+                                    rule: HeightRule.EXACT,
+                                },
+                                children: [
+                                    new TableCell({
+                                        children: [
+                                            new Paragraph({
+                                                alignment: AlignmentType.CENTER,
+                                                text: 'DATE'
+                                            }),
+                                            new Paragraph({
+                                                alignment: AlignmentType.CENTER,
+                                                text: new Date(dental.createdAt).toLocaleDateString('en-PH')
+                                            })
+                                        ]
+                                    }),
+                                    new TableCell({
+                                        children: [
+                                            new Paragraph('VS'),
+                                        ]
+                                    }),
+                                    new TableCell({
+                                        width: {
+                                            size: 8640,
+                                            type: WidthType.DXA,
+                                        },
+                                        children: [
+                                            new Paragraph({
+                                                alignment: AlignmentType.CENTER,
+                                                children: [
+                                                    new TextRun('SERVICES RENDERED')
+                                                ]
+                                            }),
+                                            ...(uniqueDescriptions.map((th) => new Paragraph(th ?? '')) || [])
+                                        ]
+                                    })
+                                ]
+                            })
+                        ],
+                    })
+                ]
+            }]
+        })
+        Packer.toBlob(doc).then(blob => {
+            saveAs(blob, patient.first_name+' '+patient.middle_name+' '+patient.last_name+' '+patient.extension+'-dental-consultation-form.docx')
         })
     }
 
     useEffect(() => {
         getImage('form-logo.png')
         getImage('ph-logo.png')
+        getImage('dental-img-1.jpg')
     }, [])
 
     const getImage = async (filename: string) => {
@@ -805,6 +1992,9 @@ export default function Exports() {
             }
             else if (filename==='ph-logo.png') {
                 setPHLogo(buffr)
+            }
+            else if (filename==='dental-img-1.jpg') {
+                setDentalImage(buffr)
             }
         })
         .catch(error => {
@@ -2776,7 +3966,7 @@ export default function Exports() {
                 children: [
                     new TableCell({
                         columnSpan: 3,
-                        rowSpan: 3,
+                        rowSpan: 2,
                         verticalAlign: 'bottom',
                         children: [
                             new Paragraph('')
@@ -2801,6 +3991,10 @@ export default function Exports() {
                 ]
             }),
             new TableRow({
+                height: {
+                    value: 720,
+                    rule: HeightRule.EXACT,
+                },
                 children: [
                     new TableCell({
                         columnSpan: 5,
@@ -2856,10 +4050,9 @@ export default function Exports() {
 
     const formattedDate = (createdAt: Date | null) => {
         const date = new Date(createdAt??0) 
-        // const date = consultation?.createdAt ? new Date(consultation.createdAt) : null;
         const formattedDate = date && !isNaN(date.getTime()) ? date.toISOString().substring(0, 10) : ''
         return formattedDate
     }
 
-    return { exportConsultation, exportMedicalExamination }
+    return { exportConsultation, exportMedicalExamination, exportDentalConsultation }
 }

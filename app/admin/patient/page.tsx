@@ -52,6 +52,7 @@ export default function Patient() {
         patients: [],
         loading: true,
     })
+    const [patientArr, setPatientArr] = useState<Patient[]>([])
 
     const getPatients = useCallback(async () => {
         await axios.get('/api/patient')
@@ -61,6 +62,7 @@ export default function Patient() {
                     patients: p,
                     loading: false
                 });
+                setPatientArr(p)
             })
             .catch(error => {
                 console.log(error);
@@ -74,8 +76,8 @@ export default function Patient() {
 
     const confirmDelete = (id: string) => {
         Swal.fire({
-            title: 'Delete Patient',
-            text: 'Are you sure you want to delete?',
+            title: 'Archive Patient',
+            text: 'Are you sure you want to move patient to the archive?',
             icon: 'question',
             showCancelButton: true,
             showConfirmButton: true,
@@ -105,12 +107,30 @@ export default function Patient() {
         })
     }
 
+    const handleSearch = (key: string) => {
+        const temp = patientArr.filter(p => 
+            p.first_name.toLowerCase().includes(key.toLowerCase()) ||
+            p.middle_name.toLowerCase().includes(key.toLowerCase()) ||
+            p.last_name.toLowerCase().includes(key.toLowerCase()) ||
+            p.extension?.toLowerCase().includes(key.toLowerCase()) ||
+            p.address.toLowerCase().includes(key.toLowerCase()) ||
+            p.email.toLowerCase().includes(key.toLowerCase()) ||
+            p.position.toLowerCase().includes(key.toLowerCase()) ||
+            p.id_number.toLowerCase().includes(key.toLowerCase()) 
+        )
+        setPatients({
+            ...patients,
+            patients: temp
+        })
+    }
+
     return (
         <div className="w-full flex flex-col md:pt-10 justify-center items-center">
             <ToastContainer position="bottom-right" />
             <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Patients</h1>
+                    <input type="text" onChange={e=>handleSearch(e.target.value)} className="p-2 text-sm w-1/3 rounded" placeholder="Search" />
                     <div className="flex justify-center items-center gap-2">
                         <Link href={'/admin/patient/create'} className="p-2 rounded bg-green-300 hover:bg-green-400 text-black hover:text-white font-semibold">Create</Link>
                         <Link href={'/admin/patient/archive'} className="p-2 rounded bg-red-300 hover:bg-red-400 text-black hover:text-white font-semibold">Archive</Link>
@@ -136,8 +156,8 @@ export default function Patient() {
                                             <td className="p-2 border-b border-gray-200">{ item.position }</td>
                                             <td className="p-2 border-b border-gray-200">{ item.department }</td>
                                             <td className="p-2 border-b border-gray-200">{ item.id_number }</td>
-                                            <td>
-                                                <div className="p-2 border-b border-gray-200 flex flex-wrap justify-center items-center gap-2">
+                                            <td className="p-2 border-b border-gray-200">
+                                                <div className="w-full flex flex-wrap justify-center items-center gap-2">
                                                     <Link href={`/admin/patient/view/${item.id_number}`} className="p-2 rounded text-white text-xs font-semibold bg-green-600 hover:bg-green-700">View</Link>
                                                     <Link href={`/admin/patient/edit/${item.id_number}`} className="p-2 rounded text-white text-xs font-semibold bg-blue-600 hover:bg-blue-700">Edit</Link>
                                                     <button onClick={()=>confirmDelete(item._id)} className="p-2 rounded text-white text-xs font-semibold bg-rose-600 hover:bg-rose-700">Archive</button>

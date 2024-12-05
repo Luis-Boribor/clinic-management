@@ -1,7 +1,12 @@
 'use client'
 
-import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import axios, { AxiosError } from "axios";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import { IoMdAdd } from "react-icons/io";
+import { MdDeleteOutline } from "react-icons/md";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from "sweetalert2";
 
 interface Patient {
     _id: string
@@ -22,6 +27,8 @@ interface DentalConsultation {
     patient: string;
     chief_complaint: string;
     examined_by: string;
+    teeth: number[];
+    teeth_work: string[];
 }
 
 export default function DentalConsultation({ params }: { params: { slug: string } }) {
@@ -43,6 +50,8 @@ export default function DentalConsultation({ params }: { params: { slug: string 
         patient: '',
         chief_complaint: '',
         examined_by: '',
+        teeth: [0],
+        teeth_work: ['']
     })
 
     const calculateAge = (birthdate: Date) => {
@@ -77,13 +86,66 @@ export default function DentalConsultation({ params }: { params: { slug: string 
         getPatient()
     }, [getPatient])
 
+    const addTooth = () => {
+        const tooth = [...dentalConsultation.teeth]
+        const twork = [...dentalConsultation.teeth_work]
+        tooth.push(0)
+        twork.push('')
+        setDentalConsultation({
+            ...dentalConsultation,
+            teeth: tooth,
+            teeth_work: twork,
+        })
+    }
+
+    const decTooth = (index: number) => {
+        const tooth = [...dentalConsultation.teeth]
+        const twork = [...dentalConsultation.teeth_work]
+        tooth.splice(index, 1)
+        twork.splice(index, 1)
+        setDentalConsultation({
+            ...dentalConsultation,
+            teeth: tooth,
+            teeth_work: twork,
+        })
+    }
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        toast.promise(
+            axios.post('/api/dental-consultation', dentalConsultation),
+            {
+                pending: 'Submitting form...',
+                success: {},
+                error: {
+                    render({ data }: { data: AxiosError<{message: ''}> }) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.response?.data?.message
+                        })
+                        return 'Error'
+                    }
+                }
+            }
+        )
+    }
+
+    const handleOnChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const {name, value} = e.target
+        setDentalConsultation({
+            ...dentalConsultation,
+            [name]: value
+        })
+    }
+
     return (
         <div className="w-full flex justify-center items-center py-10">
+            <ToastContainer position="bottom-right" />
             <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Dental Consultation</h1>
                 </header>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="w-full space-y-2">
                         <div className="w-full">
                             <p className="font-semibold">Patient Information</p>
@@ -185,7 +247,95 @@ export default function DentalConsultation({ params }: { params: { slug: string 
                             <div className="flex-grow-0 mx-5 text-sm font-semibold dark:text-white">modifiable</div>
                             <div className="flex-grow bg bg-gray-300 h-0.5"></div>
                         </div>
-                        <div className=""></div>
+                        <div className="dental-img w-full h-[600px]">
+                        </div>
+                        <div className="w-full text-white text-sm mt-2">
+                            <p>Legend:</p>
+                            <p className="flex justify-between">
+                                <span>C - Dental Caries</span>
+                                <span>Co - Composite Filling</span>
+                                <span>Rf - Roof Fragment</span>
+                                <span>Un - Un-erupted</span>
+                            </p>
+                            <p className="flex justify-between">
+                                <span>X - Tooth for Extraction</span>
+                                <span>P - Pontic</span>
+                            </p>
+                        </div>
+                        <div className="w-full mt-2 space-y-2">
+                            <div className="w-full flex justify-between items-center">
+                                <div className="w-full">
+                                    <span className="text-xs font-semibold">No.:</span>
+                                </div>
+                                <div className="w-full">
+                                    <span className="text-xs font-semibold">Legend:</span>
+                                </div>
+                            </div>
+                            {
+                                dentalConsultation.teeth.map((teet, index) => {
+                                    return(
+                                        <div className="w-full flex justify-center items-center gap-2" key={index}>
+                                            <input 
+                                                type="number"
+                                                className="w-full p-2 text-sm rounded" 
+                                                value={teet}
+                                                onChange={e=>{
+                                                    const temp = [...dentalConsultation.teeth]
+                                                    temp[index] = Number(e.target.value)
+                                                    setDentalConsultation({
+                                                        ...dentalConsultation,
+                                                        teeth: temp
+                                                    })
+                                                }}
+                                                required
+                                            />
+                                            <input 
+                                                type="text"
+                                                className="w-full p-2 text-sm rounded" 
+                                                value={dentalConsultation.teeth_work[index]}
+                                                onChange={e=>{
+                                                    const temp = [...dentalConsultation.teeth_work]
+                                                    temp[index] = e.target.value
+                                                    setDentalConsultation({
+                                                        ...dentalConsultation,
+                                                        teeth_work: temp
+                                                    })
+                                                }}
+                                                required
+                                            />
+                                            {
+                                                index === 0 ? (
+                                                    <button 
+                                                        onClick={addTooth}
+                                                        type="button" 
+                                                        className="p-2 rounded text-white bg-teal-400 hover:bg-teal-600"
+                                                    >
+                                                        <IoMdAdd />
+                                                    </button>
+                                                ) : (
+                                                    <button 
+                                                        onClick={()=>decTooth(index)}
+                                                        type="button" 
+                                                        className="p-2 rounded text-white bg-rose-400 hover:bg-rose-600"
+                                                    >
+                                                        <MdDeleteOutline />
+                                                    </button>
+                                                )
+                                            }
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div className="w-full mt-2">
+                            <label htmlFor="case_history" className="font-bold">Case History:</label>
+                            <textarea onChange={handleOnChange} name="case_history" id="case_history" className="p-2 w-full rounded resize-none text-sm"></textarea>
+                        </div>
+                        <div className="w-full mt-2">
+                            <label htmlFor="chief_complaint" className="font-bold">Chief Complaint:</label>
+                            <textarea onChange={handleOnChange} name="chief_complaint" id="chief_complaint" className="p-2 w-full rounded resize-none text-sm"></textarea>
+                        </div>
+                        <button type="submit" className="mt-2 p-2 rounded text-white text-sm font-semibold bg-blue-600 hover:bg-blue-900">submit</button>
                     </div>
                 </form>
             </section>

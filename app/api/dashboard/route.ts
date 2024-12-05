@@ -2,6 +2,7 @@ import connect from "@/lib/connect";
 import PatientLog from "@/app/models/PatientLog";
 import Post from "@/app/models/Post";
 import Appointment from "@/app/models/Appointment";
+import Records from "@/app/models/Records";
 import { NextResponse } from "next/server";
 import Patient from "@/app/models/Patient";
 
@@ -13,6 +14,7 @@ export const GET = async (request: Request) => {
         let logs = {};
         let apps = {};
         let meds = {};
+        let records = {};
         await connect();
 
         if (!email) {
@@ -37,14 +39,16 @@ export const GET = async (request: Request) => {
                     },
                 },
             ]);
+            records = await Records.find();
         } else {
-            const patient = await Patient.findOne({ email: email });
-            logs = await PatientLog.find({ patient: patient?._id, deletedAt: null }).populate('patient');
-            apps = await Appointment.findOne({ patient: patient?._id, deletedAt: null, schedule: { $gte: new Date() } }).sort({ schedule: -1 });
+            const patientOne = await Patient.findOne({ email: email });
+            logs = await PatientLog.find({ patient: patientOne?._id, deletedAt: null }).populate('patient');
+            apps = await Appointment.findOne({ patient: patientOne?._id, deletedAt: null, schedule: { $gte: new Date() } }).sort({ schedule: -1 });
+            records = await Records.find();
         }
         const posts = await Post.find({ deletedAt: null }).sort({ createdAt: -1 });
         const patient = await Patient.find({ deletedAt: null });
-        return new NextResponse(JSON.stringify({message: 'OK', posts: posts, logs: logs, appointment: apps, patient: patient, meds: meds}), {status: 200});
+        return new NextResponse(JSON.stringify({message: 'OK', posts: posts, logs: logs, appointment: apps, patient: patient, records: records}), {status: 200});
     } catch (error: unknown) {
         let message = '';
         if (error instanceof Error) {

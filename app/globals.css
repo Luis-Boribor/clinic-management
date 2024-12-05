@@ -73,3 +73,10 @@
 ::-webkit-scrollbar-thumb:hover {
   background: black; 
 } 
+
+.dental-img {
+  background-image: url('../assets/images/dental-img-1.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}

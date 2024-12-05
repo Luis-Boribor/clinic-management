@@ -2,15 +2,20 @@
 
 import React from 'react';
 
-interface DataRow {
+interface RecordInput {
     findings: string;
     year: number;
     month: number;
     count: number;
 }
 
+interface DataRow {
+    findings: string;
+    counts: number[];
+}
+
 interface DataTableProps {
-    data: DataRow[];
+    data: RecordInput[];
 }
 
 const months = [
@@ -19,15 +24,18 @@ const months = [
 ];
 
 const DataTable: React.FC<DataTableProps> = ({ data }) => {
-  // Organize data by month
-    const groupedData: Record<number, DataRow[]> = {};
+    const output: DataRow[] = data.reduce<DataRow[]>((acc, record) => {
+    let existing = acc.find((item) => item.findings === record.findings);
 
-    data.forEach((row) => {
-        if (!groupedData[row.month]) {
-        groupedData[row.month] = [];
-        }
-        groupedData[row.month].push(row);
-    });
+    if (!existing) {
+        existing = { findings: record.findings, counts: Array(12).fill(0) };
+        acc.push(existing);
+    }
+
+    existing.counts[record.month] = record.count;
+
+    return acc;
+    }, []);
 
     return (
         <table className="table-auto w-full border-collapse border border-gray-200">
@@ -41,22 +49,14 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
             </thead>
             <tbody>
                 {
-                    Object.keys(groupedData).map((year, index) => {
-                        const rows = groupedData[parseInt(year)];
-                        return rows.map((row, idx) => (
-                            <tr key={`${index}-${idx}`} className="odd:bg-white even:bg-gray-50">
-                                <td className="px-4 py-2 border border-gray-300">{row.findings}</td>
-                                {months.map((_, monthIndex) => {
-                                    const monthData = rows.find(r => r.month === monthIndex + 1);
-                                    return (
-                                        <td key={monthIndex} className="px-4 py-2 border border-gray-300">
-                                            {monthData ? monthData.count : 0}
-                                        </td>
-                                    )
-                                })}
-                            </tr>
-                        ))
-                    })
+                    output.map((record, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 border border-gray-300 font-semibold">{record.findings}</td>
+                        {record.counts.map((count, i) => (
+                        <td key={i} className="px-4 py-2 border border-gray-300 text-center">{count}</td>
+                        ))}
+                    </tr>
+                    ))
                 }
             </tbody>
         </table>

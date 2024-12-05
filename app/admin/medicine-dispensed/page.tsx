@@ -12,6 +12,9 @@ interface Medicine {
 interface Item {
     medicine: Medicine;
     quantity: number;
+    dosage: number;
+    dosage_unit: string;
+    dosage_total: number;
 }
 
 // interface Patient {
@@ -61,7 +64,6 @@ export default function MedicineDispensed() {
                         <thead className="text-white bg-zinc-600">
                             <tr>
                                 <th>Medicine</th>
-                                <th>Type</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -70,25 +72,40 @@ export default function MedicineDispensed() {
                                 dispensed.map((dis, index) => {
                                     return(
                                         <tr key={index}>
-                                            <td className="p-2 border-b border-gray-200">
+                                            <td className="p-2 border-b border-gray-200 flex flex-wrap gap-2 justify-start items-center">
                                                 {
                                                     dis.items?.map((item,idx) => {
                                                         return(
-                                                            <div className="w-full" key={idx}>
+                                                            <div className="w-full text-left" key={idx}>
                                                                 <p className="text-sm">
                                                                     <span>Medicine Name: </span>
                                                                     <span className="font-bold">{item?.medicine?.medicine_name}</span>
                                                                 </p>
+                                                                <p className="text-xs">
+                                                                    <span>Description: </span>
+                                                                    <span className="font-semibold">{item.medicine.description?.map((desc, inx) => {
+                                                                        return(
+                                                                            <span key={inx}>{desc}</span>
+                                                                        )
+                                                                    })}</span>
+                                                                </p>
                                                                 <p className="text-sm">
                                                                     <span>Quantity: </span>
                                                                     <span className="font-bold">{item.quantity}</span>
+                                                                </p>
+                                                                <p className="text-sm">
+                                                                    <span>Dosage: </span>
+                                                                    <span className="font-bold">{item.dosage} per {item.dosage_unit}</span>
+                                                                </p>
+                                                                <p className="text-sm">
+                                                                    <span>Recommended: </span>
+                                                                    <span className="font-bold">{item.dosage_total}</span>
                                                                 </p>
                                                             </div>
                                                         )
                                                     })
                                                 }
                                             </td>
-                                            <td className="p-2 border-b border-gray-200">{dis?.record?.consultation_type}</td>
                                             <td className="p-2 border-b border-gray-200">{new Date(dis?.createdAt).toLocaleDateString('en-PH')}</td>
                                         </tr>
                                     )

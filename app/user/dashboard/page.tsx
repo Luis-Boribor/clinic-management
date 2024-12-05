@@ -40,25 +40,27 @@ export default function Dashboard() {
         hour12: true, // 12-hour format
       }
 
-    const getData = useCallback(async () => {
-        await axios.get(`/api/dashboard?email=${session.data?.user?.email}`)
-        .then(response => {
-            console.log(response)
-            const p = response.data?.posts
-            const r = response.data?.logs
-            const s = response.data?.appointment
-            setRecords(r)
-            setPosts(p)
-            setSchedule(s)
-        })
-        .catch(error => {
-            console.log(error)        
-        })
-    }, [])
-
     useEffect(() => {
-        getData()
-    }, [getData])
+        if (session.status == 'authenticated') {
+            getG()
+        }
+        async function getG() {
+            const em = session.data?.user?.email
+            await axios.get(`/api/dashboard?email=${em}`)
+            .then(response => {
+                console.log(response)
+                const p = response.data?.posts
+                const r = response.data?.logs
+                const s = response.data?.appointment
+                setRecords(r)
+                setPosts(p)
+                setSchedule(s)
+            })
+            .catch(error => {
+                console.log(error)        
+            })
+        }
+    }, [session.status])
 
     return (
         <div className="w-full min-h-screen pt-20">
@@ -102,7 +104,7 @@ export default function Dashboard() {
                     </header>
                     {
                         schedule?.schedule ? (
-                            <p className="">{new Date(schedule.schedule).toLocaleString('en-PH', options)} {schedule.schedule.toString()}</p>
+                            <p className="">{new Date(schedule.schedule).toLocaleString('en-PH', options)}</p>
                         ) : (
                             <p>No Scheduled Appointment</p>
                         )

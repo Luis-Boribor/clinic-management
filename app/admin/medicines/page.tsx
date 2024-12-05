@@ -19,6 +19,7 @@ interface Medicine {
 
 export default function Medicine() {
     const [medicines, setMedicines] = useState<Medicine[]>([])
+    const [medicineArr, setMedicineArr] = useState<Medicine[]>([])
     const [showModal, setShowModal] = useState<boolean>(false)
     const [showStock, setShowStock] = useState<boolean>(false)
     const [selectedMedicine, setSelectedMedicine] = useState<string>('')
@@ -37,6 +38,7 @@ export default function Medicine() {
         .then(response => {
             const med = response.data?.medicines
             setMedicines(med)
+            setMedicineArr(med)
         })
         .catch(error => {
             console.log(error)
@@ -114,6 +116,13 @@ export default function Medicine() {
         setMedicines(med)
     }
 
+    const handleSearch = (key: string) => {
+        const temp = medicineArr.filter(p => 
+            p.medicine_name.toLowerCase().includes(key.toLowerCase()) 
+        )
+        setMedicines(temp)
+    }
+
     return(
         <div className="w-full flex justify-center items-center">
             <ToastContainer position="bottom-right" />
@@ -188,6 +197,7 @@ export default function Medicine() {
             <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Medicines</h1>
+                    <input type="text" onChange={e=>handleSearch(e.target.value)} className="p-2 text-sm w-1/3 rounded" placeholder="Search" />
                     <div className="flex flex-wrap justify-center items-center gap-2">
                         <button 
                             onClick={()=>setShowModal(true)}

@@ -17,20 +17,6 @@ export default function Home() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // await axios.post('/api/auth/sign-in', {
-    //   email: email,
-    //   password: password,
-    // })
-    // .then(response => {
-    //   // const user = response.data?.user
-    //   console.log(response)
-    //   router.push('/admin/dashboard')
-    //   toast.success('Logged in')
-    // })
-    // .catch(error => {
-    //   console.log(error)
-    //   toast.error(error.response?.data?.message)
-    // })
     toast.promise(
       axios.post('/api/auth/sign-in', {
         email: email,

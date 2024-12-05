@@ -2,6 +2,7 @@ import connect from "@/lib/connect";
 import Consultation from "@/app/models/Consultation";
 import PatientLog from "@/app/models/PatientLog";
 import MedicalRecord from "@/app/models/MedicalRecord";
+import Records from "@/app/models/Records";
 import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 
@@ -56,6 +57,29 @@ export const POST = async (request: Request) => {
             consultation_type: 'consultation',
             findings: consultation?.current_illness,
         });
+        for (let index = 0; index < consultation.current_illness.length; index++) {
+            const element = consultation.current_illness[index];
+            const year = new Date(consultation.createdAt).getFullYear();
+            const month = new Date(consultation.createdAt).getMonth();
+            const oldRecord = await Records.findOne({ findings: element, month: month, year: year });
+            if (!oldRecord) {
+                await Records.create(
+                    {
+                        findings: element,
+                        year: year,
+                        month: month,
+                        count: 1
+                    }
+                );
+            }
+            else {
+                await Records.findOneAndUpdate(
+                    { _id: oldRecord._id },
+                    { count: (oldRecord.count + 1) },
+                    { new: true }
+                );
+            }
+        }
         return new NextResponse(JSON.stringify({message: 'OK', record: record}), {status: 200});
     } catch (error: unknown) {
         let message = '';

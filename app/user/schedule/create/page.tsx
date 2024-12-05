@@ -1,8 +1,11 @@
 'use client'
 
-import axios from "axios";
+import axios, { AxiosError, AxiosHeaders } from "axios";
 import { FormEvent, useState } from "react";
 import { useSession } from "next-auth/react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from "sweetalert2";
 
 interface Schedule {
     email: string;
@@ -20,17 +23,28 @@ export default function Create() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        await axios.post('/api/schedule', schedule)
-        .then(response => {
-            console.log(response)
-        })
-        .catch(error => {
-            console.log(error)
-        })
+        toast.promise(
+            axios.post('/api/schedule', schedule),
+            {
+                pending: 'Submitting appointment...',
+                success: 'Appointment saved',
+                error: {
+                    render({ data }: { data: AxiosError<{message: ''}> }) {
+                        console.log(data)
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.response?.data?.message
+                        })
+                        return 'Error'
+                    }
+                }
+            }
+        )
     }
 
     return (
         <div className="w-full justify-center items-center flex min-h-screen">
+            <ToastContainer position="bottom-right" />
             <section className="w-96 rounded-lg shadow-xl bg-zinc-400 p-5">
                 <header className="mb-5 font-semibold">
                     <h1 className="text-xl">Create Appointment</h1>

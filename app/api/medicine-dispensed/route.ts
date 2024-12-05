@@ -62,8 +62,12 @@ export const GET = async () => {
                         medicine: {
                             _id: '$medicine._id',
                             medicine_name: '$medicine.medicine_name',
+                            description: '$medicine.description'
                         },
                         quantity: '$items.quantity',
+                        dosage: '$items.dosage',
+                        dosage_unit: '$items.dosage_unit',
+                        dosage_total: '$items.dosage_total',
                     }],
                     record: {
                         _id: '$record._id',
@@ -72,7 +76,7 @@ export const GET = async () => {
                     createdAt: 1,
                 }
             }
-        ]);
+        ]).sort({ createdAt: -1 });
         return new NextResponse(JSON.stringify({message: 'OK', dispensed: dispensed}), {status: 200});
     } catch (error: unknown) {
         let message = '';
@@ -95,6 +99,9 @@ export const POST = async (request: Request) => {
             const temp = await MedicineDispensedItem.create({
                 medicine: medicine[index].id,
                 quantity: medicine[index].quantity,
+                dosage: medicine[index].dosage,
+                dosage_unit: medicine[index].dosage_unit,
+                dosage_total: medicine[index].dosage_total
             });
             itemId.push(temp?._id);
         }

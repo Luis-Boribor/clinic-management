@@ -5,6 +5,9 @@ import axios from "axios";
 import Link from "next/link";
 import Exports from "@/app/utils/Exports";
 import { useCallback, useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Patient {
     _id: string
@@ -124,10 +127,21 @@ interface MedicalExaminationState {
     createdAt: Date;
 }
 
+interface DentalState {
+    patient: Patient;
+    teeth?: number[];
+    teeth_work?: string[];
+    case_history?: string;
+    chief_complaint?: string;
+    createdAt: Date;
+}
+
 interface MedexState {
+    _id: string;
     patient: Patient;
     consultation: ConsultationState;
     medical_examination: MedicalExaminationState;
+    dental_consultation: DentalState;
     consultation_type: string;
     findings: string;
     createdAt: Date;
@@ -136,7 +150,8 @@ interface MedexState {
 export default function Consultation() {
     const [isHidden, setIsHidden] = useState<boolean>(true)
     const [consultations, setConsultations] = useState<MedexState[]>([])
-    const { exportConsultation, exportMedicalExamination } = Exports()
+    const [medexArr, setMedexArr] = useState<MedexState[]>([])
+    const { exportConsultation, exportMedicalExamination, exportDentalConsultation } = Exports()
 
     const togglePatientFinder = () => {
         setIsHidden(!isHidden)
@@ -148,6 +163,7 @@ export default function Consultation() {
             console.log(response)
             const con = response.data?.medex
             setConsultations(con)
+            setMedexArr(con)
         })
         .catch(error => {
             console.log(error)
@@ -158,19 +174,69 @@ export default function Consultation() {
         getConsultations()
     }, [getConsultations])
 
+    const confirmArchive = (id: string, index: number) => {
+        Swal.fire({
+            title: 'Archive Record',
+            text: 'Are you sure you want to move record to archive?',
+            icon: 'question',
+            showCancelButton: true,
+            showConfirmButton: true,
+            cancelButtonColor: 'red',
+            confirmButtonColor: 'indigo',
+        })
+        .then(response => {
+            if (response.isConfirmed) {
+                archiveRecord(id, index)
+            }
+        })
+    }
+
+    const archiveRecord = (id: string, index: number) => {
+        toast.promise(
+            axios.patch(`/api/medical-record?record_id=${id}`),
+            {
+                pending: 'Moving record...',
+                success: {
+                    render() {
+                        const temp = [...consultations]
+                        temp.splice(index, 1)
+                        setConsultations(temp)
+                        return 'Record archived'
+                    }
+                }
+            }
+        )
+    }
+
+    const handleSearch = (key: string) => {
+        const temp = medexArr.filter(medx => 
+            medx.patient.first_name.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.middle_name.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.last_name.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.extension?.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.position.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.email.toLowerCase().includes(key.toLowerCase()) ||
+            medx.patient.address.toLowerCase().includes(key.toLowerCase()) ||
+            medx.consultation_type.toLowerCase().includes(key.toLowerCase())
+        )
+        setConsultations(temp)
+    }
+
     return (
         <div className="w-full flex justify-center items-center">
+            <ToastContainer position="bottom-right" />
             <PatientFinder isHidden={isHidden} goTo={'consultation'} toggle={togglePatientFinder} />
-            <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400 overflow-auto">
+            <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Consultations</h1>
+                    <input type="text" onChange={e=>handleSearch(e.target.value)} className="p-2 text-sm w-1/3 rounded" placeholder="Search" />
                     <div className="flex flex-wrap gap-2">
                         <Link href={'/admin/consultation/archive'} className="p-2 rounded text-white text-center font-semibold bg-cyan-400 hover:bg-cyan-600">Archive</Link>
                     </div>
                 </header>
-                <div className="relative w-full h-96">
+                <div className="relative w-full h-96 overflow-auto">
                     <table className="w-full table-auto md:table-fixed text-center">
-                        <thead className="text-white bg-zinc-600">
+                        <thead className="text-white bg-zinc-600 sticky top-0">
                             <tr>
                                 <th>Name</th>
                                 <th>Position</th>
@@ -202,8 +268,12 @@ export default function Consultation() {
                                                         item.consultation_type=='medical-examination' && 
                                                         <button onClick={()=>exportMedicalExamination(item?.medical_examination, item?.patient)} className="p-2 text-sm text-white font-bold bg-blue-400 hover:bg-blue-600 rounded">export</button>
                                                     }
+                                                    {
+                                                        item.consultation_type=='dental-consultation' && 
+                                                        <button onClick={()=>exportDentalConsultation(item?.dental_consultation, item?.patient)} className="p-2 text-sm text-white font-bold bg-blue-400 hover:bg-blue-600 rounded">export</button>
+                                                    }
                                                     {/* <button onClick={()=>consultationExport(item?.consultation?._id)} className="p-2 text-sm text-white font-bold bg-blue-400 hover:bg-blue-600 rounded">export</button> */}
-                                                    <button className="p-2 text-sm text-white font-bold bg-rose-400 hover:bg-rose-600 rounded">archive</button>
+                                                    <button onClick={()=>confirmArchive(item._id, index)} className="p-2 text-sm text-white font-bold bg-rose-400 hover:bg-rose-600 rounded">archive</button>
                                                 </div>
                                             </td>
                                         </tr>
