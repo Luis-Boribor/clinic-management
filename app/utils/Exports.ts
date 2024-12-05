@@ -1552,24 +1552,24 @@ export default function Exports() {
                                 alignment: AlignmentType.CENTER,
                                 children: [
                                     new ImageRun({
-                                        data: dentalImage,
+                                        data: dentalImage || Buffer.from(''),
                                         transformation: {
                                             width: 500,
                                             height: 500,
                                         },
-                                        type: 'jpg',
                                         floating: {
                                             horizontalPosition: {
-                                              relative: HorizontalPositionRelativeFrom.PAGE,
-                                              align: HorizontalPositionAlign.CENTER,
+                                                relative: HorizontalPositionRelativeFrom.PAGE,
+                                                align: HorizontalPositionAlign.CENTER,
                                             },
                                             verticalPosition: {
-                                              relative: VerticalPositionRelativeFrom.PAGE,
-                                              align: VerticalPositionAlign.CENTER,
+                                                relative: VerticalPositionRelativeFrom.PAGE,
+                                                align: VerticalPositionAlign.CENTER,
                                             },
                                         },
-                                    })
-                                ]
+                                        type: 'jpg',
+                                    }),
+                                ],
                             }),
                             // new Paragraph({
                             //     alignment: AlignmentType.CENTER,
