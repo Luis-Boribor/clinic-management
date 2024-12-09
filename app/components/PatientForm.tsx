@@ -5,10 +5,11 @@ import Link from "next/link";
 import { ChangeEvent, FC, FormEvent, useState } from "react"
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from "sweetalert2";
 
 interface Patient {
     first_name: string;
-    middle_name: string;
+    middle_name?: string;
     last_name: string;
     extension?: string;
     position: 'student' | 'teacher' | 'non-teaching-staff' | '';
@@ -164,6 +165,11 @@ const PatientForm: FC<PatientProps> = ({ email_address }) =>  {
         })
         .catch(error => {
             toast.error('Error')
+            Swal.fire({
+                title: 'Patient Error',
+                text: error.response?.data,
+                icon: 'error'
+            })
             console.log(error)
         })
     }
@@ -201,7 +207,6 @@ const PatientForm: FC<PatientProps> = ({ email_address }) =>  {
                                 placeholder="Middle name"
                                 value={patient.middle_name}
                                 onChange={handleOnChange}
-                                required
                             />
                         </div>
                         <div className="w-full">

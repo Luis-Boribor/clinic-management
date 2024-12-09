@@ -73,7 +73,14 @@ export default function Create() {
                                 name="schedule" 
                                 id="schedule" 
                                 className="w-full p-2 text-sm rounded" 
-                                value={schedule.schedule ? schedule.schedule.toISOString().substring(0, 16) : ''}
+                                // value={schedule.schedule ? schedule.schedule.toISOString().substring(0, 16) : ''}
+                                value={
+                                    schedule.schedule 
+                                        ? new Date(schedule.schedule.getTime() - schedule.schedule.getTimezoneOffset() * 60000)
+                                            .toISOString()
+                                            .substring(0, 16)
+                                        : ''
+                                }
                                 onChange={(e)=>setSchedule({...schedule, schedule: new Date(e.target.value)})}
                             />
                         </div>

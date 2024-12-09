@@ -1,7 +1,7 @@
 'use client'
 
 import PatientFinder from "@/app/components/PatientFinder";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import Exports from "@/app/utils/Exports";
 import { useCallback, useEffect, useState } from "react";
@@ -152,6 +152,7 @@ export default function Consultation() {
     const [consultations, setConsultations] = useState<MedexState[]>([])
     const [medexArr, setMedexArr] = useState<MedexState[]>([])
     const { exportConsultation, exportMedicalExamination, exportDentalConsultation } = Exports()
+    const [isMounted, setIsMounted] = useState<boolean>(false)
 
     const togglePatientFinder = () => {
         setIsHidden(!isHidden)
@@ -171,6 +172,7 @@ export default function Consultation() {
     }, [])
 
     useEffect(() => {
+        setIsMounted(true)
         getConsultations()
     }, [getConsultations])
 
@@ -191,7 +193,7 @@ export default function Consultation() {
         })
     }
 
-    const archiveRecord = (id: string, index: number) => {
+    const archiveRecord = async (id: string, index: number) => {
         toast.promise(
             axios.patch(`/api/medical-record?record_id=${id}`),
             {
@@ -202,6 +204,16 @@ export default function Consultation() {
                         temp.splice(index, 1)
                         setConsultations(temp)
                         return 'Record archived'
+                    }
+                },
+                error: {
+                    render({ data }: { data: AxiosError<{message: string}> }) {
+                        console.log(data)
+                        Swal.fire({
+                            title: 'Archive Error',
+                            text: data.response?.data?.message
+                        })
+                        return 'Error'
                     }
                 }
             }
@@ -220,6 +232,10 @@ export default function Consultation() {
             medx.consultation_type.toLowerCase().includes(key.toLowerCase())
         )
         setConsultations(temp)
+    }
+
+    if (!isMounted) {
+        return null
     }
 
     return (

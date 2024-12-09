@@ -167,8 +167,9 @@ export default function Archive() {
     }
 
     const getData = useCallback(async () => {
-        await axios.get('')
+        await axios.get('/api/medical-record/archive')
         .then(response => {
+            console.log(response)
             const arc = response.data?.archive
             setArchive(arc)
             setArchiveArr(arc)
@@ -206,7 +207,7 @@ export default function Archive() {
 
     const restoreRecord = (id: string) => {
         toast.promise(
-            axios.patch(''),
+            axios.patch('/ap'),
             {
                 pending: 'Restoring...',
                 success: {
@@ -252,7 +253,7 @@ export default function Archive() {
                         </thead>
                         <tbody>
                             {
-                                archive.map((arc, index) => {
+                                archive?.map((arc, index) => {
                                     return(
                                         <tr key={index}>
                                             <td>

@@ -31,8 +31,7 @@ export const POST = async (request: Request) => {
     try {
         const body = await request.json();
         await connect();
-        const patient = new Patient(body);
-        patient.save();
+        const patient = await Patient.create(body);
         if (!patient) {
             return new NextResponse(JSON.stringify({message: 'Failed to create patient'}), {status: 400});
         }

@@ -197,8 +197,8 @@ export default function Dashboard() {
             </div>
             <section>
             </section>
-            <section className="w-full bg-zinc-200 p-5 mb-10 overflow-auto h-96">
-                <header className="w-full flex justify-between items-center gap-2 mb-5">
+            <section className="w-full bg-zinc-200 p-5 mb-10 overflow-auto">
+                <header className="w-full flex justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">Year:</span>
                         <select 
@@ -219,8 +219,10 @@ export default function Dashboard() {
                     </div>
                     <Link href={'/admin/old-records/create'} className="p-1 rounded text-xs text-white font-semibold bg-teal-400 hover:bg-teal-600">Add old records</Link>
                 </header>
-                <DataTable data={records} />
             </section>
+            <div className="mb-10">
+                <DataTable data={records} />
+            </div>
             <div className="w-full md:px-20 flex flex-col justify-center items-center gap-10">
                 <section className="w-full md:w-2/3">
                     <header className="mb-1">

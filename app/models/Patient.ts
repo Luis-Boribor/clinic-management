@@ -2,7 +2,7 @@ import { Schema, model, models } from "mongoose";
 
 interface IPatient extends Document {
     first_name: string;
-    middle_name: string;
+    middle_name?: string;
     last_name: string;
     extension?: string;
     position: 'student' | 'teacher' | 'non-teaching-staff';
@@ -14,7 +14,7 @@ interface IPatient extends Document {
     nationality: string;
     religion: string;
     sex: 'male' | 'female';
-    contact: string;
+    contact?: string;
     email: string;
     address: string;
     father_name?: string;
@@ -45,10 +45,7 @@ const patientSchema = new Schema<IPatient>(
             type: String,
             required: true,
         },
-        middle_name: {
-            type: String,
-            required: true,
-        },
+        middle_name: String,
         last_name: {
             type: String,
             required: true,
@@ -85,10 +82,7 @@ const patientSchema = new Schema<IPatient>(
             type: String,
             required: true,
         },
-        contact: {
-            type: String,
-            required: true,
-        },
+        contact: String,
         email: {
             type: String,
             required: true,

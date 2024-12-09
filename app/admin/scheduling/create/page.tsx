@@ -108,7 +108,14 @@ export default function Create() {
                                 name="schedule" 
                                 id="schedule" 
                                 className="w-full p-2 rounded" 
-                                value={scheduleForm.schedule ? new Date(scheduleForm.schedule).toISOString().substring(0, 10) : ''}
+                                // value={scheduleForm.schedule ? new Date(scheduleForm.schedule).toISOString().substring(0, 10) : ''}
+                                value={
+                                    scheduleForm.schedule 
+                                        ? new Date(new Date(scheduleForm.schedule).getTime() - new Date(scheduleForm.schedule).getTimezoneOffset() * 60000)
+                                            .toISOString()
+                                            .substring(0, 16)
+                                        : ''
+                                }
                                 onChange={handleOnChange}
                             />
                         </div>
