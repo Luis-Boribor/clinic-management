@@ -266,14 +266,14 @@ export default function Consultation() {
                                 consultations.map((item, index) => {
                                     return (
                                         <tr key={index}>
-                                            <td>
+                                            <td className="py-2 border-b border-gray-200">
                                                 {item?.patient?.first_name} {item?.patient?.middle_name} {item?.patient?.last_name} {item?.patient?.extension}
 
                                             </td>
-                                            <td>{item?.patient?.position}</td>
-                                            <td>{item?.consultation_type}</td>
-                                            <td>{new Date(item?.createdAt).toLocaleDateString('en-PH')}</td>
-                                            <td>
+                                            <td className="py-2 border-b border-gray-200">{item?.patient?.position}</td>
+                                            <td className="py-2 border-b border-gray-200">{item?.consultation_type}</td>
+                                            <td className="py-2 border-b border-gray-200">{new Date(item?.createdAt).toLocaleDateString('en-PH')}</td>
+                                            <td className="py-2 border-b border-gray-200">
                                                 <div className="w-full flex flex-wrap justify-center items-center gap-2">
                                                     {
                                                         item.consultation_type=='consultation' && 

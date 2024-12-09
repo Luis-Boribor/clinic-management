@@ -193,7 +193,7 @@ export const GET = async () => {
                     consultation_type: 1,
                     findings: 1,
                     createdAt: 1,
-
+                    deletedAt: 1,
                 }
             },
         ]);
@@ -210,19 +210,19 @@ export const GET = async () => {
 export const PATCH = async (request: Request) => {
     try {
         const { searchParams } = new URL(request.url);
-        const consultationId = searchParams.get('consultation_id');
+        const recordId = searchParams.get('record_id');
 
-        if (!consultationId) {
+        if (!recordId) {
             return new NextResponse(JSON.stringify({message: 'Missing consultation id'}), {status: 400});
         }
 
-        if (!Types.ObjectId.isValid(consultationId)) {
+        if (!Types.ObjectId.isValid(recordId)) {
             return new NextResponse(JSON.stringify({message: 'Invalid consultation id'}), {status: 400});
         }
 
         await connect();
-        const result = await Consultation.findOneAndUpdate(
-            { _id: consultationId },
+        const result = await MedicalRecord.findOneAndUpdate(
+            { _id: recordId },
             { deletedAt: null },
             { new: true }
         );
@@ -230,8 +230,7 @@ export const PATCH = async (request: Request) => {
         if (!result) {
             return new NextResponse(JSON.stringify({message: 'Failed to restore consultation'}), {status: 400});
         }
-        const consultation = await Consultation.find({ deletedAt: { $ne: null } }).populate('patient');
-        return new NextResponse(JSON.stringify({message: 'OK', consultation: consultation}), {status: 200});
+        return new NextResponse(JSON.stringify({message: 'OK'}), {status: 200});
     } catch (error: unknown) {
         let message = '';
         if (error instanceof Error) {
@@ -244,18 +243,18 @@ export const PATCH = async (request: Request) => {
 export const DELETE = async (request: Request) => {
     try {
         const { searchParams } = new URL(request.url);
-        const consultationId = searchParams.get('consultation_id');
+        const recordId = searchParams.get('record_id');
 
-        if (!consultationId) {
+        if (!recordId) {
             return new NextResponse(JSON.stringify({message: 'Missing consultation id'}), {status: 400});
         }
 
-        if (!Types.ObjectId.isValid(consultationId)) {
+        if (!Types.ObjectId.isValid(recordId)) {
             return new NextResponse(JSON.stringify({message: 'Invalid consultation id'}), {status: 400});
         }
 
         await connect();
-        const result = await Consultation.findByIdAndDelete(consultationId);
+        const result = await MedicalRecord.findByIdAndDelete(recordId);
 
         if (!result) {
             return new NextResponse(JSON.stringify({message: 'Failed to delete consultation'}), {status: 400});

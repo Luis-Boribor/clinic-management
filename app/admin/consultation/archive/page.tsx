@@ -170,7 +170,7 @@ export default function Archive() {
         await axios.get('/api/medical-record/archive')
         .then(response => {
             console.log(response)
-            const arc = response.data?.archive
+            const arc = response.data?.medex
             setArchive(arc)
             setArchiveArr(arc)
         })
@@ -188,7 +188,7 @@ export default function Archive() {
         return null
     }
 
-    const confirmRestore = (id: string) => {
+    const confirmRestore = (id: string, index: number) => {
         Swal.fire({
             title: 'Restore Confirmation',
             text: 'Are you sure you want to restore?',
@@ -200,18 +200,22 @@ export default function Archive() {
         })
         .then(response => {
             if (response.isConfirmed) {
-                restoreRecord(id)
+                restoreRecord(id, index)
             }
         })
     }
 
-    const restoreRecord = (id: string) => {
+    const restoreRecord = (id: string, index: number) => {
         toast.promise(
-            axios.patch('/ap'),
+            axios.patch(`/api/medical-record/archive?record_id=${id}`),
             {
                 pending: 'Restoring...',
                 success: {
                     render() {
+                        const temp = [...archiveArr]
+                        temp.splice(index, 1)
+                        setArchive(temp)
+                        setArchiveArr(temp)
                         return 'Restored'
                     }
                 },
@@ -220,6 +224,52 @@ export default function Archive() {
                         Swal.fire({
                             title: 'Restore Error',
                             text: data.response?.data?.message
+                        })
+                        return 'Error'
+                    }
+                }
+            }
+        )
+    }
+
+    const confirmDelete = (id: string, index: number) => {
+        Swal.fire({
+            title: 'Delete Confirmation',
+            text: 'Are you sure you want to permanently delete?',
+            icon: 'question',
+            showCancelButton: true,
+            showConfirmButton: true,
+            cancelButtonColor: 'red',
+            confirmButtonColor: 'indigo',
+        })
+        .then(response => {
+            if (response.isConfirmed) {
+                deleteRecord(id, index)
+            }
+        })
+    }
+
+    const deleteRecord = async (id: string, index: number) => {
+        toast.promise(
+            axios.delete(`/api/medical-record/archive?record_id=${id}`),
+            {
+                pending: 'Deleting...',
+                success: {
+                    render() {
+                        const temp = [...archiveArr]
+                        temp.splice(index, 1)
+                        setArchive(temp)
+                        setArchiveArr(temp)
+                        return 'Deleted'
+                    }
+                },
+                error: {
+                    render({ data }: { data: AxiosError<{message: string}> }) {
+                        console.log(data)
+                        Swal.fire({
+                            title: 'Delete Error',
+                            text: data?.response?.data?.message,
+                            icon: 'error'
                         })
                         return 'Error'
                     }
@@ -256,16 +306,17 @@ export default function Archive() {
                                 archive?.map((arc, index) => {
                                     return(
                                         <tr key={index}>
-                                            <td>
+                                            <td className="py-2 border-b border-gray-200">
                                             {arc.patient.first_name} {arc.patient.middle_name} {arc.patient.last_name} {arc.patient.extension}
                                             </td>
-                                            <td>{arc.patient.position}</td>
-                                            <td>{arc.consultation_type}</td>
-                                            <td>{new Date(arc.createdAt).toLocaleDateString('en-PH')}</td>
-                                            <td>{new Date(arc.deletedAt).toLocaleDateString('en-PH')}</td>
-                                            <td>
+                                            <td className="py-2 border-b border-gray-200">{arc.patient.position}</td>
+                                            <td className="py-2 border-b border-gray-200">{arc.consultation_type}</td>
+                                            <td className="py-2 border-b border-gray-200">{new Date(arc.createdAt).toLocaleDateString('en-PH')}</td>
+                                            <td className="py-2 border-b border-gray-200">{new Date(arc.deletedAt).toLocaleDateString('en-PH')}</td>
+                                            <td className="py-2 border-b border-gray-200">
                                                 <div className="w-full flex flex-wrap justify-center items-center gap-2">
-                                                    <button onClick={()=>confirmRestore(arc._id)} className="p-1 rounded text-xs text-white font-bold bg-teal-400 hover:bg-teal-600">Restore</button>
+                                                    <button onClick={()=>confirmRestore(arc._id, index)} className="p-2 rounded text-xs text-white font-bold bg-teal-400 hover:bg-teal-600">Restore</button>
+                                                    <button onClick={()=>confirmDelete(arc._id, index)} className="p-2 rounded text-xs text-white font-bold bg-rose-400 hover:bg-rose-600">Delete</button>
                                                 </div>
                                             </td>
                                         </tr>
