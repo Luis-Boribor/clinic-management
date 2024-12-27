@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   startOfMonth,
   endOfMonth,
@@ -21,22 +21,24 @@ interface CalendarProps {
 }
 
 const Calendar: React.FC<CalendarProps> = ({ appointments }) => {
-  // Hook declarations should not be in loops or conditionals
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Memoize the calculated dates (unconditionally)
-  const startMonth = startOfMonth(currentDate);
-  const endMonth = endOfMonth(currentDate);
-  const startDate = startOfWeek(startMonth);
-  const endDate = endOfWeek(endMonth);
+  // Use useMemo to memoize the calculated dates
+  const { startDate, endDate, dates } = useMemo(() => {
+    const startMonth = startOfMonth(currentDate);
+    const endMonth = endOfMonth(currentDate);
+    const startDate = startOfWeek(startMonth);
+    const endDate = endOfWeek(endMonth);
 
-  // Generate the list of dates for the current month/week
-  const dates: Date[] = [];
-  let day = startDate;
-  while (day <= endDate) {
-    dates.push(day);
-    day = addDays(day, 1);
-  }
+    const dates: Date[] = [];
+    let day = startDate;
+    while (day <= endDate) {
+      dates.push(day);
+      day = addDays(day, 1);
+    }
+
+    return { startDate, endDate, dates };
+  }, [currentDate]);  // Dependency on currentDate
 
   const renderHeader = () => {
     const dateFormat = 'MMMM yyyy';
