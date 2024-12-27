@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuthStore } from "@/app/stores/auth";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react"
 import { ToastContainer, toast } from "react-toastify";

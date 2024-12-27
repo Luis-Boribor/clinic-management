@@ -1,7 +1,6 @@
 'use client'
 
-// components/Calendar.tsx
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   startOfMonth,
   endOfMonth,
@@ -24,11 +23,12 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ appointments }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const startMonth = startOfMonth(currentDate);
-  const endMonth = endOfMonth(currentDate);
-  const startDate = startOfWeek(startMonth);
-  const endDate = endOfWeek(endMonth);
+  const startMonth = useMemo(() => startOfMonth(currentDate), [currentDate]);
+  const endMonth = useMemo(() => endOfMonth(currentDate), [currentDate]);
+  const startDate = useMemo(() => startOfWeek(startMonth), [startMonth]);
+  const endDate = useMemo(() => endOfWeek(endMonth), [endMonth]);
 
+  // Generate dates for the current month and week
   const dates: Date[] = [];
   let day = startDate;
   while (day <= endDate) {
@@ -85,9 +85,9 @@ const Calendar: React.FC<CalendarProps> = ({ appointments }) => {
               className={`p-1 border border-gray-200 text-center ${
                 isAppointment
                   ? 'bg-green-100'
-                  : (day.getMonth() === currentDate.getMonth()
+                  : day.getMonth() === currentDate.getMonth()
                   ? 'bg-white'
-                  : 'bg-gray-100 text-gray-400')
+                  : 'bg-gray-100 text-gray-400'
               }`}
             >
               {format(day, dateFormat)}

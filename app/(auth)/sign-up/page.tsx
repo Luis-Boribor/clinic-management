@@ -1,20 +1,12 @@
 'use client'
 
 import { useAuthStore } from "@/app/stores/auth";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-
-interface SignUpForm {
-    email: string;
-    first_name: string;
-    middle_name: string;
-    last_name: string;
-    extension: string;
-}
 
 interface Patient {
     email: string;
@@ -53,6 +45,14 @@ interface Patient {
     food_allergy: string[];
     medicine_allergy: string[];
     other_allergy: string[];
+}
+
+interface User {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    position: string;
 }
 
 const SignUp = () => {
@@ -118,12 +118,6 @@ const SignUp = () => {
         }));
     }
 
-    // const validatePassword = () => {
-    //     if (patient.password !== patient.password_confirmation) {
-
-    //     }
-    // }
-
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         try {
@@ -135,7 +129,7 @@ const SignUp = () => {
                     error: 'Error'
                 }
             )
-            const user = (await response).data?.user
+            const user: User = (await response).data?.user
             store.getUser(user)
             router.push('/verification')
         } catch (error) {

@@ -2,7 +2,7 @@ import connect from "@/lib/connect";
 import User from "@/app/models/User";
 import Patient from "@/app/models/Patient";
 import { NextResponse } from "next/server";
-import { EmailTemplate } from "@/app/components/AuthOTP";
+import EmailTemplate from "@/app/components/AuthOTP";
 import { Resend } from "resend";
 import bcryptjs from "bcryptjs";
 
@@ -37,18 +37,27 @@ export const POST = async (request: Request) => {
         }
 
         const fullName = body?.first_name+' '+body?.middle_name+' '+body?.last_name+' '+body?.extension;
+        // const { data, error } = await resend.emails.send({
+        //     from: 'Acme <onboarding@resend.dev>',
+        //     to: [body?.email],
+        //     subject: 'OTP Verification',
+        //     react: EmailTemplate({ full_name: fullName, otp: code_pass }),
+        // });
+
+        const resolvedTemplate = await EmailTemplate({ full_name: fullName, otp: code_pass });
+
         const { data, error } = await resend.emails.send({
             from: 'Acme <onboarding@resend.dev>',
             to: [body?.email],
             subject: 'OTP Verification',
-            react: EmailTemplate({ full_name: fullName, otp: code_pass }),
+            react: resolvedTemplate, // Render as a string
         });
 
         if (error) {
             return new NextResponse(JSON.stringify({message: error}), {status: 500});
         }
         await Patient.create(body);
-        return new NextResponse(JSON.stringify({message: 'OK', user: newUser}), {status: 200});
+        return new NextResponse(JSON.stringify({message: 'OK', user: newUser, data: data}), {status: 200});
     } catch (error: unknown) {
         let message = '';
         if (error instanceof Error) {

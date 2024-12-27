@@ -1,6 +1,6 @@
 'use client'
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react"
 import Swal from "sweetalert2";

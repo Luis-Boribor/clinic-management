@@ -3,13 +3,21 @@
 import Image from "next/image";
 import logo from "@/assets/images/sorsu-logo.png";
 import { FormEvent, useState } from "react";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useAuthStore } from "./stores/auth";
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  position: string;
+}
 
 export default function Home() {
   const [email, setEmail] = useState<string>('')
@@ -31,7 +39,7 @@ export default function Home() {
           error: 'Error'
         }
       )
-      const user = (await response).data?.user
+      const user: User = (await response).data?.user
       store.getUser(user)
       if (user?.role==='admin') {
         router.push('/admin/dashboard')

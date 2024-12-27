@@ -6,7 +6,7 @@ interface IAppointment extends Document {
     patient: Schema.Types.ObjectId;
     schedule: Date;
     consultation_type: string;
-    status: String;
+    status: string;
     deletedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date; 
