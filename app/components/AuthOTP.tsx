@@ -5,7 +5,7 @@ interface EmailTemplateProps {
     otp: string;
 }
 
-const EmailTemplate: FC<EmailTemplateProps> = ({ full_name, otp }) => {
+export const EmailTemplate: FC<EmailTemplateProps> = ({ full_name, otp }) => {
     return (
         <section>
             <header className="mb-5">
@@ -17,5 +17,3 @@ const EmailTemplate: FC<EmailTemplateProps> = ({ full_name, otp }) => {
         </section>
     )
 }
-
-export default EmailTemplate

@@ -24,7 +24,7 @@ const Calendar: React.FC<CalendarProps> = ({ appointments }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Use useMemo to memoize the calculated dates
-  const { startDate, endDate, dates } = useMemo(() => {
+  const { dates } = useMemo(() => {
     const startMonth = startOfMonth(currentDate);
     const endMonth = endOfMonth(currentDate);
     const startDate = startOfWeek(startMonth);

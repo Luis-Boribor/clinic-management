@@ -2,7 +2,7 @@ import connect from "@/lib/connect";
 import User from "@/app/models/User";
 import Patient from "@/app/models/Patient";
 import { NextResponse } from "next/server";
-import EmailTemplate from "@/app/components/AuthOTP";
+import { EmailTemplate } from "@/app/components/AuthOTP";
 import { Resend } from "resend";
 import bcryptjs from "bcryptjs";
 
