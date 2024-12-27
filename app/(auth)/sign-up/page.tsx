@@ -121,7 +121,7 @@ const SignUp = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         try {
-            const response = toast.promise<AxiosResponse<any>>(
+            const response: AxiosResponse<{ user: User }> = await toast.promise<AxiosResponse<any>>(
                 axios.post('/api/auth/register', patient),
                 {
                     pending: 'Signing up...',
@@ -129,7 +129,7 @@ const SignUp = () => {
                     error: 'Error'
                 }
             )
-            const user: User = (await response).data?.user
+            const user: User = response.data?.user
             store.getUser(user)
             router.push('/verification')
         } catch (error) {

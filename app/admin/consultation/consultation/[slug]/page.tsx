@@ -1,7 +1,7 @@
 'use client'
 
 import MedicineDispenser from "@/app/components/MedicineDispenser";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 // import { useRouter } from "next/navigation";
@@ -304,38 +304,34 @@ export default function Consultation({ params }: { params: { slug: string }}) {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        const updatedConsultation: ConsultationState = {
-            ...consultation,
-            illness_history: illnessHistory.map((illness) => illness.value),
-            person_with_disability: pwd.map((disability) => disability.value),
-            current_illness: selectedIllness.map((ill) => ill.value),
-        }
-        toast.promise(
-            axios.post('/api/consultation', updatedConsultation),
-            {
-                pending: 'Submitting form...',
-                success: {
-                    render({ data }: { data: AxiosResponse }) {
-                        console.log(data)
-                        const rec = data.data?.record
-                        setRecordId(rec?._id)
-                        setHideDispenser(false)
-                        return 'Form submitted'
-                    }
-                },
-                error: {
-                    render({ data }: { data: AxiosError }) {
-                        Swal.fire({
-                            title: 'Error',
-                            text: data?.message,
-                            icon: 'error'
-                        })
-                        return 'Error'
-                    }
-                }
-
+        try {
+            const updatedConsultation: ConsultationState = {
+                ...consultation,
+                illness_history: illnessHistory.map((illness) => illness.value),
+                person_with_disability: pwd.map((disability) => disability.value),
+                current_illness: selectedIllness.map((ill) => ill.value),
             }
-        )
+            const response = toast.promise(
+                axios.post('/api/consultation', updatedConsultation),
+                {
+                    pending: 'Submitting form...',
+                    success: 'Form submitted',
+                    error: 'Error'
+                }
+            )
+            const rec = (await response).data?.record
+            setRecordId(rec?._id)
+            setHideDispenser(false)
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log(error)
+                Swal.fire({
+                    title: 'Sign Up Error',
+                    text: error.response?.data?.message ?? error.message,
+                    icon: 'error',
+                });
+            }
+        }
     }
 
     if (!isMounted) {

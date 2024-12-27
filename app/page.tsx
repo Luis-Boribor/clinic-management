@@ -28,7 +28,7 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
-      const response = toast.promise<AxiosResponse<any>>(
+      const response: AxiosResponse<{ user: User }> = await toast.promise<AxiosResponse<any>>(
         axios.post('/api/auth/sign-in', {
           email: email,
           password: password,
@@ -39,7 +39,7 @@ export default function Home() {
           error: 'Error'
         }
       )
-      const user: User = (await response).data?.user
+      const user: User = response.data?.user
       store.getUser(user)
       if (user?.role==='admin') {
         router.push('/admin/dashboard')

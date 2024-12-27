@@ -116,7 +116,7 @@ export default function DentalConsultation({ params }: { params: { slug: string 
             axios.post('/api/dental-consultation', dentalConsultation),
             {
                 pending: 'Submitting form...',
-                success: {},
+                success: 'Form submitted',
                 error: {
                     render({ data }: { data: AxiosError<{message: ''}> }) {
                         Swal.fire({
