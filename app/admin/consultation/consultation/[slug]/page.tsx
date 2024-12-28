@@ -2,7 +2,7 @@
 
 import MedicineDispenser from "@/app/components/MedicineDispenser";
 import axios from "axios";
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, FC, FormEvent, use, useCallback, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 // import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
@@ -88,8 +88,14 @@ interface Medicine {
     quantity: number;
 }
 
-export default function Consultation({ params }: { params: { slug: string }}) {
-    // const router = useRouter()
+interface PageProps {
+    params: Promise<{
+      slug: string;
+    }>;
+}
+
+const Consultation: FC<PageProps> = ({ params }) => {
+    const { slug } = use(params)
     const [patient, setPatient] = useState<Patient>({
         _id: '',
         first_name: '',
@@ -166,7 +172,7 @@ export default function Consultation({ params }: { params: { slug: string }}) {
 
 
     const getPatient = useCallback(async () => {
-        await axios.get(`/api/patient?id_number=${params.slug}`)
+        await axios.get(`/api/patient?id_number=${slug}`)
         .then(response => {
             const p = response.data?.patient
             setPatient(p)
@@ -195,7 +201,7 @@ export default function Consultation({ params }: { params: { slug: string }}) {
         .catch(error => {
             console.log(error)
         }) 
-    }, [])
+    }, [slug])
 
     const getMedicines = useCallback(async () => {
         await axios.get('/api/medicine')
@@ -315,7 +321,7 @@ export default function Consultation({ params }: { params: { slug: string }}) {
                 axios.post('/api/consultation', updatedConsultation),
                 {
                     pending: 'Submitting form...',
-                    success: 'Form submitted',
+                    success: 'Form submitter',
                     error: 'Error'
                 }
             )
@@ -353,7 +359,7 @@ export default function Consultation({ params }: { params: { slug: string }}) {
                 <form onSubmit={handleSubmit}>
                     <div className="w-full space-y-2">
                         <div className="w-full">
-                            <p className="font-semibold">Patient Information:</p>
+                            <p className="font-semibold">Patient Information:{slug}</p>
                             <div className="flex justify-center items-center gap-2">
                                 <div className="w-full">
                                     <label htmlFor="first_name" className="text-xs font-semibold">First name:</label>
@@ -1004,3 +1010,5 @@ export default function Consultation({ params }: { params: { slug: string }}) {
         </div>
     )
 }
+
+export default Consultation

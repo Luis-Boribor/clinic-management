@@ -20,11 +20,12 @@ export const POST = async (request: Request) => {
     try {
         const { name, email } = await request.json();
         const code_pass = generateOTP();
+        const updatedTemplate = await EmailTemplate({ full_name: name, otp: code_pass });
         const { data, error } = await resend.emails.send({
             from: 'Acme <onboarding@resend.dev>',
             to: [email],
             subject: 'OTP Verification',
-            react: EmailTemplate({ full_name: name, otp: code_pass }),
+            react: updatedTemplate,
         });
 
         if (error) {

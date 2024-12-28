@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react"
+import { FC, use, useCallback, useEffect, useState } from "react"
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,9 +41,14 @@ interface Patient {
     other_allergy: string[];
 }
 
+interface PageProps {
+    params: Promise<{
+      slug: string;
+    }>;
+}
 
-export default function Edit({ params }: { params: { slug: string } }) {
-
+const Edit: FC<PageProps> = ({ params }) => {
+    const { slug } = use(params)
     const [patient, setPatient] = useState<Patient>({
         _id: '',
         first_name: '',
@@ -80,7 +85,7 @@ export default function Edit({ params }: { params: { slug: string } }) {
     })
 
     const getPatient = useCallback(async () => {
-        await axios.get(`/api/patient?id_number=${params.slug}`)
+        await axios.get(`/api/patient?id_number=${slug}`)
         .then(response => {
             const p = response.data?.patient
             setPatient(p)
@@ -562,3 +567,5 @@ export default function Edit({ params }: { params: { slug: string } }) {
         </div>
     )
 }
+
+export default Edit

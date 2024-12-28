@@ -1,7 +1,7 @@
 'use client'
 
 import axios from "axios";
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, FC, FormEvent, use, useCallback, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 import { useRouter } from "next/navigation";
 
@@ -65,6 +65,12 @@ interface MedicalExamination {
     remarks: string;
 }
 
+interface PageProps {
+    params: Promise<{
+      slug: string;
+    }>;
+}
+
 const correctionOptions = [
     { value: 'skin disease', label: 'Skin Disease' },
     { value: 'dental defects', label: 'Dental Defects' },
@@ -76,7 +82,8 @@ const correctionOptions = [
     { value: 'diabetes', label: 'Diabetes' },
 ]
 
-export default function MedicalExamination({ params }: { params: { slug: string } }) {
+const MedicalExamination: FC<PageProps> = ({ params }) => {
+    const { slug } = use(params)
     const [medicalExam, setMedicalExam] = useState<MedicalExamination>({
         patient: '',
         civil_status: '',
@@ -135,7 +142,7 @@ export default function MedicalExamination({ params }: { params: { slug: string 
     const router = useRouter()
 
     const getPatient = useCallback(async () => {
-        await axios.get(`/api/patient?id_number=${params.slug}`)
+        await axios.get(`/api/patient?id_number=${slug}`)
         .then(response => {
             const p = response.data?.patient
             setPatient(p)
@@ -147,7 +154,7 @@ export default function MedicalExamination({ params }: { params: { slug: string 
         .catch(error => {
             console.log(error)
         })
-    }, [])
+    }, [slug])
 
     useEffect(() => {
         setIsMounted(true)
@@ -815,3 +822,5 @@ export default function MedicalExamination({ params }: { params: { slug: string 
         </div>
     )
 }
+
+export default MedicalExamination

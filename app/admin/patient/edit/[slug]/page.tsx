@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react"
+import { ChangeEvent, FC, FormEvent, use, useCallback, useEffect, useState } from "react"
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,9 +41,14 @@ interface Patient {
     other_allergy: string[];
 }
 
+interface PageProps {
+    params: Promise<{
+      slug: string;
+    }>;
+}
 
-export default function Edit({ params }: { params: { slug: string } }) {
-
+const Edit: FC<PageProps> = ({ params }) => {
+    const { slug } = use(params)
     const [patient, setPatient] = useState<Patient>({
         _id: '',
         first_name: '',
@@ -118,7 +123,7 @@ export default function Edit({ params }: { params: { slug: string } }) {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        await axios.put(`/api/patient?id_number=${params.slug}`, patient)
+        await axios.put(`/api/patient?id_number=${slug}`, patient)
         .then(()=>{
             toast.success('Patient submitted')
         })
@@ -129,7 +134,7 @@ export default function Edit({ params }: { params: { slug: string } }) {
     }
 
     const getPatient = useCallback(async () => {
-        await axios.get(`/api/patient?id_number=${params.slug}`)
+        await axios.get(`/api/patient?id_number=${slug}`)
         .then(response => {
             const p = response.data?.patient
             setPatient(p)
@@ -138,7 +143,7 @@ export default function Edit({ params }: { params: { slug: string } }) {
             console.log(error)
             toast.error(error?.response?.data?.message)
         })
-    }, [])
+    }, [slug])
 
     useEffect(() => {
         getPatient()
@@ -685,3 +690,5 @@ export default function Edit({ params }: { params: { slug: string } }) {
         </div>
     )
 }
+
+export default Edit

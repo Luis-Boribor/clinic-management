@@ -1,7 +1,7 @@
 'use client'
 
 import axios, { AxiosError } from "axios";
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, FC, FormEvent, use, useCallback, useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { MdDeleteOutline } from "react-icons/md";
 import { ToastContainer, toast } from "react-toastify";
@@ -31,7 +31,14 @@ interface DentalConsultation {
     teeth_work: string[];
 }
 
-export default function DentalConsultation({ params }: { params: { slug: string } }) {
+interface PageProps {
+    params: Promise<{
+      slug: string;
+    }>;
+}
+
+const DentalConsultation: FC<PageProps> = ({ params }) => {
+    const { slug } = use(params)
     const [patient, setPatient] = useState<Patient>({
         _id: '',
         first_name: '',
@@ -66,7 +73,7 @@ export default function DentalConsultation({ params }: { params: { slug: string 
     }
 
     const getPatient = useCallback(async () => {
-        await axios.get(`/api/patient?id_number=${params.slug}`)
+        await axios.get(`/api/patient?id_number=${slug}`)
         .then(response => {
             const p = response.data?.patient
             const age = calculateAge(p?.birthdate)
@@ -342,3 +349,5 @@ export default function DentalConsultation({ params }: { params: { slug: string 
         </div>
     )
 }
+
+export default DentalConsultation
