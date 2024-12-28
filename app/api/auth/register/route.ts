@@ -21,9 +21,12 @@ export const POST = async (request: Request) => {
     try {
         const body = await request.json();
         await connect();
+        const existingUser = await User.findOne({ email: body.email });
+        if (existingUser) {
+            return new NextResponse(JSON.stringify({message: 'Email already exists'}), {status: 400});
+        }
         const salt = await bcryptjs.genSalt(10);
         const code_pass = generateOTP();
-        
         const hashedPassword = await bcryptjs.hash(body?.password, salt);
         const newUser = new User({
             ...body,
@@ -37,12 +40,6 @@ export const POST = async (request: Request) => {
         }
 
         const fullName = body?.first_name+' '+body?.middle_name+' '+body?.last_name+' '+body?.extension;
-        // const { data, error } = await resend.emails.send({
-        //     from: 'Acme <onboarding@resend.dev>',
-        //     to: [body?.email],
-        //     subject: 'OTP Verification',
-        //     react: EmailTemplate({ full_name: fullName, otp: code_pass }),
-        // });
 
         const resolvedTemplate = await EmailTemplate({ full_name: fullName, otp: code_pass });
 
@@ -56,7 +53,11 @@ export const POST = async (request: Request) => {
         if (error) {
             return new NextResponse(JSON.stringify({message: error}), {status: 500});
         }
-        await Patient.create(body);
+        await Patient.findOneAndUpdate(
+            { email: body?.email },
+            body,
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
         return new NextResponse(JSON.stringify({message: 'OK', user: newUser, data: data}), {status: 200});
     } catch (error: unknown) {
         let message = '';
