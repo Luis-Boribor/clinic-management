@@ -1,6 +1,6 @@
 'use client'
 
-import PatientFinder from "@/app/components/PatientFinder";
+// import PatientFinder from "@/app/components/PatientFinder";
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import Exports from "@/app/utils/Exports";
@@ -148,15 +148,15 @@ interface MedexState {
 }
 
 export default function Consultation() {
-    const [isHidden, setIsHidden] = useState<boolean>(true)
+    // const [isHidden, setIsHidden] = useState<boolean>(true)
     const [consultations, setConsultations] = useState<MedexState[]>([])
     const [medexArr, setMedexArr] = useState<MedexState[]>([])
     const { exportConsultation, exportMedicalExamination, exportDentalConsultation } = Exports()
     const [isMounted, setIsMounted] = useState<boolean>(false)
 
-    const togglePatientFinder = () => {
-        setIsHidden(!isHidden)
-    }
+    // const togglePatientFinder = () => {
+    //     setIsHidden(!isHidden)
+    // }
 
     const getConsultations = useCallback(async () => {
         await axios.get('/api/medical-record')

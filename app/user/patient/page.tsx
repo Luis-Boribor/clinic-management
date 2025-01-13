@@ -1,13 +1,16 @@
 'use client'
 
+import ProfileImage from "@/app/components/ProfileImage";
 import { useAuthStore } from "@/app/stores/auth";
 import axios, { AxiosError } from "axios";
+// import Image from "next/image";
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from "sweetalert2";
 
 interface Patient {
+    profile_image: string;
     first_name: string;
     middle_name?: string;
     last_name: string;
@@ -46,7 +49,9 @@ interface Patient {
 
 export default function Patient() {
     const store = useAuthStore()
+    const [patientId, setPatientId] = useState<string>('')
     const [patient, setPatient] = useState<Patient>({
+        profile_image: 'default-patient-image.png',
         email: '',
         first_name: '',
         middle_name: '',
@@ -147,7 +152,9 @@ export default function Patient() {
         await axios.get(`/api/patient?id_number=${em}`)
         .then(response => {
             const p = response.data?.patient
+            setPatientId(p?._id)
             setPatient({
+                profile_image: p?.profile_image ?? 'default-patient-image.png',
                 email: p?.email ?? '',
                 first_name: p?.first_name ?? '',
                 middle_name: p?.middle_name ?? '',
@@ -202,7 +209,8 @@ export default function Patient() {
                 </header>
                 <form onSubmit={handleSubmit}>
                     <div className="w-full space-y-2">
-                        <div className="w-full flex flex-col md:flex-row justify-center items-center gap-2">
+                        <div className="w-full flex justify-between items-center">
+                            <ProfileImage imageUrl={patient?.profile_image} patientId={patientId} />
                             <div className="w-full">
                                 <label htmlFor="email" className="text-xs font-semibold">Email:</label>
                                 <input 

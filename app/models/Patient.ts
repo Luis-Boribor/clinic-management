@@ -1,6 +1,7 @@
 import { Schema, model, models } from "mongoose";
 
 interface IPatient extends Document {
+    profile_image?: string;
     first_name: string;
     middle_name?: string;
     last_name: string;
@@ -41,6 +42,7 @@ interface IPatient extends Document {
 
 const patientSchema = new Schema<IPatient>(
     {
+        profile_image: String,
         first_name: {
             type: String,
             required: true,
