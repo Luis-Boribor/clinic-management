@@ -196,10 +196,14 @@ export default function Scheduling() {
                                             <td className="p-2 border-b border-gray-200">{app?.status}</td>
                                             <td className="p-2 border-b border-gray-200">{scheduleDate.toLocaleDateString('en-US')} {scheduleDate.toLocaleTimeString('en-US')}</td>
                                             <td className="p-2 border-b border-gray-200">
-                                                <div className="w-full flex flex-wrap justify-center items-center gap-2">
-                                                    <button onClick={()=>confirmAccept(app._id)} className="p-2 rounded text-white text-sm font-bold bg-blue-400 hover:bg-blue-600">Accept</button>
-                                                    <button onClick={()=>confirmReject(app._id)} className="p-2 rounded text-white text-sm font-bold bg-rose-400 hover:bg-rose-600">Reject</button>
-                                                </div>
+                                                {
+                                                    app?.status === 'pending' && (
+                                                        <div className="w-full flex flex-wrap justify-center items-center gap-2">
+                                                            <button onClick={()=>confirmAccept(app._id)} className="p-2 rounded text-white text-sm font-bold bg-blue-400 hover:bg-blue-600">Accept</button>
+                                                            <button onClick={()=>confirmReject(app._id)} className="p-2 rounded text-white text-sm font-bold bg-rose-400 hover:bg-rose-600">Reject</button>
+                                                        </div>
+                                                    )
+                                                }
                                             </td>
                                         </tr>
                                     )

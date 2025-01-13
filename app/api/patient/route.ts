@@ -14,9 +14,12 @@ export const GET = async (request: Request) => {
         if (!id_number) {
             patient = await Patient.find({ deletedAt: null }); 
         } else {
-            patient = await Patient.findOne({ $or: [{ id_number: id_number }, { email: id_number }] }); 
+            patient = await Patient.findOne({ $or: [{ id_number: id_number }, { email: id_number }], deletedAt: null });
+            
         }
-
+        if (!patient || (Array.isArray(patient) && patient.length === 0)) {
+            return new NextResponse(JSON.stringify({ message: 'Patient not found' }), { status: 400 });
+        } 
         return new NextResponse(JSON.stringify({ message: 'OK', patient: patient }), { status: 200 });
     } catch (error: unknown) {
         let message = '';

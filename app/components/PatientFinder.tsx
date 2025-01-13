@@ -18,31 +18,54 @@ const PatientFinder: FC<PatientFinderProps> = ({ isHidden, goTo, toggle }) => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        toast.promise(
-            axios.get(`/api/patient?id_number=${idNumber}`),
-            {
-                pending: 'Finding patient...',
-                success: {
-                    render({ data }: { data: AxiosResponse }) {
-                        const p = data.data?.patient
-                        router.push(goTo + '/' + p?.id_number)
-                        toggle()
-                        return 'Patient found'
-                    }
-                },
-                error: {
-                    render({ data }: {data: AxiosError}) {
-                        console.log(data)
-                        Swal.fire({
-                            title: 'Error',
-                            text: data?.message,
-                            icon: 'error'
-                        })
-                        return 'Error'
-                    }
+        // toast.promise(
+        //     axios.get(`/api/patient?id_number=${idNumber}`),
+        //     {
+        //         pending: 'Finding patient...',
+        //         success: {
+        //             render({ data }: { data: AxiosResponse }) {
+        //                 console.log(data.data)
+        //                 const p = data.data?.patient
+        //                 router.push(goTo + '/' + p?.id_number)
+        //                 toggle()
+        //                 return 'Patient found'
+        //             }
+        //         },
+        //         error: {
+        //             render({ data }: {data: AxiosError<{message: string}>}) {
+        //                 console.log(data)
+        //                 Swal.fire({
+        //                     title: 'Error',
+        //                     text: data?.response?.data?.message ?? data?.message,
+        //                     icon: 'error'
+        //                 })
+        //                 return 'Error'
+        //             }
+        //         }
+        //     }
+        // )
+        try {
+            const response = toast.promise(
+                axios.get(`/api/patient?id_number=${idNumber}`),
+                {
+                    pending: 'Finding patient...',
+                    success: 'Patient found',
+                    error: 'Error'
                 }
+            )
+            const p = (await response).data?.patient
+            router.push(goTo + '/' + p?.id_number)
+            toggle()
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log(error)
+                Swal.fire({
+                    title: 'Error',
+                    text: error.response?.data?.message ?? error.message,
+                    icon: 'error',
+                });
             }
-        )
+        }
     }
 
     return (

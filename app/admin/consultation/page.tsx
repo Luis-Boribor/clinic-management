@@ -241,7 +241,7 @@ export default function Consultation() {
     return (
         <div className="w-full flex justify-center items-center">
             <ToastContainer position="bottom-right" />
-            <PatientFinder isHidden={isHidden} goTo={'consultation'} toggle={togglePatientFinder} />
+            {/* <PatientFinder isHidden={isHidden} goTo={'consultation'} toggle={togglePatientFinder} /> */}
             <section className="w-full md:w-2/3 rounded-lg shadow-xl p-5 bg-zinc-400">
                 <header className="mb-5 font-semibold flex justify-between items-center">
                     <h1 className="text-2xl">Consultations</h1>

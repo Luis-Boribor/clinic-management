@@ -332,7 +332,7 @@ const Consultation: FC<PageProps> = ({ params }) => {
             if (axios.isAxiosError(error)) {
                 console.log(error)
                 Swal.fire({
-                    title: 'Sign Up Error',
+                    title: 'Error',
                     text: error.response?.data?.message ?? error.message,
                     icon: 'error',
                 });
