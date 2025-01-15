@@ -55,6 +55,7 @@ interface User {
     email: string;
     role: string;
     position: string;
+    profile_image: string;
 }
 
 const SignUp = () => {

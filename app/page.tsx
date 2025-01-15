@@ -19,6 +19,7 @@ interface User {
   email: string;
   role: string;
   position: string;
+  profile_image: string;
 }
 
 export default function Home() {
@@ -42,6 +43,7 @@ export default function Home() {
         }
       )
       const user: User = response.data?.user
+      console.log(user)
       store.getUser(user)
       if (user?.role==='admin') {
         router.push('/admin/dashboard')

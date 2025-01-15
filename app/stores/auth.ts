@@ -7,12 +7,14 @@ interface UserData {
     email: string;
     role: string;
     position: string;
+    profile_image: string;
 }
 
 interface AuthState {
     user: UserData,
     getUser: (userData: UserData) => void;
     removeUser: ()=>void;
+    replaceImage: (image: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -25,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
                     email: '',
                     role: '',
                     position: '',
+                    profile_image: '',
                 },
                 getUser: (userData) => set(()=>({ user: userData })),
                 removeUser: () => set(()=>({ user: {
@@ -32,8 +35,13 @@ export const useAuthStore = create<AuthState>()(
                     name: '',
                     email: '',
                     role: '',
-                    position: ''
-                } }))
+                    position: '',
+                    profile_image: '',
+                } })),
+                replaceImage: (image) =>
+                    set((state) => ({
+                        user: { ...state.user, profile_image: image },
+                })),
             }),
             {
                 name: 'auth-storage',

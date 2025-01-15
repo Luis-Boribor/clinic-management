@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 import Patient from "@/app/models/Patient";
 import { Types } from "mongoose";
+import User from "@/app/models/User";
 
 export const GET = async (request: Request) => {
     try {
@@ -73,12 +74,17 @@ export const POST = async (request: Request) => {
             path.join(process.cwd(), "app", "profile-image", filename),
             buffer
         );
-        await Patient.findOneAndUpdate(
+        const patient = await Patient.findOneAndUpdate(
             { _id: patientId },
             { profile_image: filename },
             { new: true }
         );
-        return NextResponse.json({ Message: "Success", status: 201 });
+        await User.findOneAndUpdate(
+            { email: patient?.email },
+            { profile_image: filename },
+            { new: true }
+        );
+        return NextResponse.json({ Message: "Success", fileName: filename, status: 201 });
     } catch (error) {
         console.log("Error occured ", error);
         return NextResponse.json({ Message: "Failed", status: 500 });

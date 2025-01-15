@@ -10,6 +10,7 @@ interface IUser extends Document {
   role: string;
   verification_code: string;
   verifiedAt: Date;
+  profile_image: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, default: 'user' },
   verification_code: String,
   verifiedAt: Date,
+  profile_image: String,
 });
 
 // Export Mongoose model or create one if it doesn't exist

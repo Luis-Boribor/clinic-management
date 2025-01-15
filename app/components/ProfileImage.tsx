@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { useAuthStore } from "../stores/auth";
 
 interface PropState {
     imageUrl: string;
@@ -13,6 +14,7 @@ interface PropState {
 
 const ProfileImage: FC<PropState> = ({ imageUrl, patientId }) => {
     const [profileImage, setProfileImage] = useState<string>('')
+    const store = useAuthStore()
 
     const getImage = useCallback(async () => {
         const image_url = imageUrl ?? 'default-patient-image.png'
@@ -31,8 +33,8 @@ const ProfileImage: FC<PropState> = ({ imageUrl, patientId }) => {
     }, [imageUrl]);
 
     useEffect(() => {
-        getImage();
-    }, [getImage]);
+        getImage()
+    }, [getImage])
 
     const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return
@@ -46,7 +48,7 @@ const ProfileImage: FC<PropState> = ({ imageUrl, patientId }) => {
             const formData = new FormData()
             formData.append('image', image)
             formData.append('patient_id', patientId)
-            toast.promise(
+            const response = toast.promise(
                 axios.post('/api/images/patient', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 }),
@@ -56,6 +58,8 @@ const ProfileImage: FC<PropState> = ({ imageUrl, patientId }) => {
                     error: 'Error'
                 }
             )
+            const newProfileImage = (await response).data?.fileName
+            store.replaceImage(newProfileImage)
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.log(error)
