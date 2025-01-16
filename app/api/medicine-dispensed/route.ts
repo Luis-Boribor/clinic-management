@@ -1,6 +1,7 @@
 import connect from "@/lib/connect";
 import MedicineDispensed from "@/app/models/MedicineDispensed";
 import MedicineDispensedItem from "@/app/models/MedicineDispensedItem";
+import Medicine from "@/app/models/Medicine";
 import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 
@@ -95,6 +96,15 @@ export const POST = async (request: Request) => {
             return new NextResponse(JSON.stringify({message: 'Invalid record id'}), {status: 400});
         }
         await connect();
+        for (let i = 0; i < medicine.length; i++) {
+            const tmp = await Medicine.findOne({ _id: medicine[i].id });
+            if (!tmp) {
+                return new NextResponse(JSON.stringify({message: 'Medicine not found'}), {status: 404});
+            }
+            if (tmp.stock < medicine[i].quantity) {
+                return new NextResponse(JSON.stringify({message: 'Medicine quantity exceeded medicine stock'}), {status: 400});
+            }
+        }
         for (let index = 0; index < medicine.length; index++) {
             const temp = await MedicineDispensedItem.create({
                 medicine: medicine[index].id,
@@ -104,6 +114,11 @@ export const POST = async (request: Request) => {
                 dosage_total: medicine[index].dosage_total
             });
             itemId.push(temp?._id);
+            await Medicine.findOneAndUpdate(
+                { _id: medicine[index].id },
+                { $inc: { stock: -medicine[index].quantity } },
+                { new: true }
+            );
         }
         const result = await MedicineDispensed.create({
             record: record,

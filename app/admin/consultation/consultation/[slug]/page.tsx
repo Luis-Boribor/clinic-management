@@ -85,7 +85,7 @@ interface ConsultationState {
 interface Medicine {
     _id: string;
     medicine_name: string;
-    quantity: number;
+    stock: number;
 }
 
 interface PageProps {
@@ -206,14 +206,20 @@ const Consultation: FC<PageProps> = ({ params }) => {
     const getMedicines = useCallback(async () => {
         await axios.get('/api/medicine')
         .then(response => {
+            console.log(response)
             const meds = response.data?.medicines
             // setMedicine(meds)
-            setMedicineOptions(meds)
+            filterMedicine(meds)
         })
         .catch(error => {
             console.log(error)
         })
     }, [])
+
+    const filterMedicine = (meds: Medicine[]) => {
+        const temp = meds.filter(med => med.stock > 0)
+        setMedicineOptions(temp)
+    }
 
     useEffect(() => {
         setIsMounted(true)

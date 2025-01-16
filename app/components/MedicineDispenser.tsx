@@ -21,7 +21,7 @@ interface Medicine {
 interface IMedicine {
     _id: string;
     medicine_name: string;
-    quantity: number;
+    stock: number;
 }
 
 const MedicineDispenser: FC<Props> = ({ isHidden, toggle, medicines, record }) => {
@@ -120,6 +120,7 @@ const MedicineDispenser: FC<Props> = ({ isHidden, toggle, medicines, record }) =
                                                 type="number"
                                                 className="p-2 rounded ring-2 ring-black text-sm w-full"
                                                 value={med.quantity}
+                                                max={(medicines.find(md => md._id === med.id))?.stock}
                                                 onChange={(e) =>
                                                     handleMedicineChange(index, 'quantity', parseInt(e.target.value, 10))
                                                 }
